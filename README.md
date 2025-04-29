@@ -1,2 +1,1 @@
-# To-Do-List-App
- 
+# Simple Todo app 👋
