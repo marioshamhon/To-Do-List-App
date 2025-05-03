@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { useRouter, Link } from 'expo-router'
 import { placeholderTextColor } from '../styles/colors.js';
-import { signInUser } from '@/services/auth.service.js';
+import { loginUser } from '@/services/auth.service.js';
 
 export default function SignInScreen() {
   
@@ -12,7 +12,7 @@ export default function SignInScreen() {
 
    const router = useRouter();
   
-  const handleLogIn = async () => {
+  const handleLogin = async () => {
     setErrorMessage(''); // Clear previous error
 
     if ((email === '') && (password === '')) {
@@ -30,10 +30,10 @@ export default function SignInScreen() {
       return;
     }
   
-    const result = await signInUser(email, password);
+    const result = await loginUser(email, password);
   
     if (result.success) {
-      router.replace('/SignUpScreen'); // Navigate to sign up screen screen (change this later)
+      router.push('/Home'); // Navigate to sign up screen screen (change this later)
     } else {
       setErrorMessage(result.message);
       setPassword('');
@@ -75,14 +75,14 @@ export default function SignInScreen() {
     
 
       {/* 5. Login button */}
-      <TouchableOpacity
+      <Pressable
         className="bg-blue-500 rounded py-3 mb-4"
-        onPress={handleLogIn}
+        onPress={handleLogin}
       >
         <Text className="text-center text-white font-semibold">
           Log In
         </Text>
-      </TouchableOpacity>
+      </Pressable>
 
       {/* 6. Sign-up link text */}
       <View className="flex-row justify-center">

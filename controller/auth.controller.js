@@ -12,7 +12,7 @@ export const signUp = async (req, res, next) => {
     session.startTransaction();
 
     try {
-        const {name, email, password} = req.body;
+        const { name, email, password } = req.body;
 
         if (password.length < minimumPasswordLength)  {
             const error = new Error(`Password too short please provide an password with a minimum of ${minimumPasswordLength} characters`);
@@ -29,17 +29,19 @@ export const signUp = async (req, res, next) => {
         }
 
         const salt = await bcrypt.genSalt(10);
+        
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const newUser = await User.create([{name, email, password: hashedPassword}], {session});
+        const newUser = await User.create([{ name, email, password: hashedPassword }], {session});
         
         const token = jwt.sign({userId: newUser[0]._id}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN})
 
         await session.commitTransaction();
+        
         session.endSession();
 
         res.status(201).json({
-            sucess: true, 
+            success: true, 
             message: "User created successfully",
             data: {
                 token,
@@ -77,7 +79,7 @@ export const signIn = async (req, res, next) => {
         const token = jwt.sign({userId: user._id}, JWT_SECRET, {expiresIn: JWT_EXPIRES_IN});
 
         res.status(200).json({
-            sucess: true,
+            success: true,
             message: "User signed in in successfully",
             data: {
                 token,

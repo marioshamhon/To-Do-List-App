@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { useRouter, Link } from 'expo-router'
 import { placeholderTextColor } from '../styles/colors.js';
 import { registerUser } from '../services/auth.service.js'
@@ -46,7 +46,7 @@ export default function SignUpScreen() {
     const result = await registerUser(name, email, password);
   
     if (result.success) {
-      router.replace('/SignInScreen'); // Navigate to sign in screen (change this later)
+      router.push('/Home'); // Navigate to sign in screen (change this later)
     } else {
       setErrorMessage(result.message);
       setPassword('');
@@ -96,7 +96,7 @@ export default function SignUpScreen() {
       ) : null}
 
       {/* 6. Sign Up button */}
-      <TouchableOpacity
+      <Pressable
         className="bg-blue-500 rounded py-3 mb-4"
         onPress={handleRegister}
       >
@@ -104,7 +104,7 @@ export default function SignUpScreen() {
         <Text className="text-center text-white font-semibold">
           Sign up!
         </Text>
-      </TouchableOpacity>
+      </Pressable>
 
       {/* 5. Sign-In link text */}
       <View className="flex-row justify-center">
