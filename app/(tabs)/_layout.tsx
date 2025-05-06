@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import colors from "tailwindcss/colors";
 
 const _layout = () => {
   return (
@@ -9,6 +10,7 @@ const _layout = () => {
         name="Home"
         options={{
           title: "Home",
+          tabBarActiveTintColor: colors.blue[600],
           tabBarIcon: () => (
             <Ionicons name="home-outline" size={24} color="black" />
           ),

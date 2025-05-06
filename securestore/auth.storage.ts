@@ -1,9 +1,9 @@
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 
-const TOKEN_KEY = 'authToken';
+const TOKEN_KEY = "authToken";
 
 // Save token
-export async function saveToken(token) {
+export async function saveToken(token: string) {
   await SecureStore.setItemAsync(TOKEN_KEY, token);
 }
 

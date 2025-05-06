@@ -1,10 +1,14 @@
-import { saveToken } from "../securestore/auth.storage.js";
+import { saveToken } from "../securestore/auth.storage";
 
 const signUpApiUrl = "http://192.168.1.6:5000/api/auth/sign-up";
 
 const signInApiUrl = "http://192.168.1.6:5000/api/auth/sign-in";
 
-export async function registerUser(name, email, password) {
+export async function registerUser(
+  name: string,
+  email: string,
+  password: string
+) {
   try {
     const response = await fetch(signUpApiUrl, {
       method: "POST",
@@ -19,11 +23,12 @@ export async function registerUser(name, email, password) {
 
     if (response.ok) {
       await saveToken(responseData.data.token);
+
       return { success: true };
     } else {
       return {
         success: false,
-        message: responseData.error || "Registration failed",
+        message: responseData.error || "Registration failed server side",
       };
     }
   } catch (error) {
@@ -32,7 +37,7 @@ export async function registerUser(name, email, password) {
   }
 }
 
-export async function loginUser(email, password) {
+export async function loginUser(email: string, password: string) {
   try {
     const response = await fetch(signInApiUrl, {
       method: "POST",
@@ -51,11 +56,11 @@ export async function loginUser(email, password) {
     } else {
       return {
         success: false,
-        message: responseData.error || "Sign in failed",
+        message: responseData.error || "Sign in failed server side",
       };
     }
   } catch (error) {
-    console.error("Error in registerUser function:", error);
+    console.error("Error in loginUser function:", error);
     return { success: false, message: "Unexpected error occurred" };
   }
 }

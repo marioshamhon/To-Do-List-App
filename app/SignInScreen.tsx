@@ -1,51 +1,21 @@
-import React, { useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
-import { useRouter, Link } from 'expo-router'
-import { placeholderTextColor } from '../styles/colors.js';
-import { loginUser } from '@/services/auth.service.js';
+import React, { useState } from "react";
+import { View, Text, TextInput, Pressable } from "react-native";
+import { Link } from "expo-router";
+import { placeholderTextColor } from "../styles/colors";
+import { useClearInputs } from "../hooks/useClearInputs";
+import { handleLogin } from "../helper_functions/authHelpers";
 
 export default function SignInScreen() {
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-   const router = useRouter();
-  
-  const handleLogin = async () => {
-    setErrorMessage(''); // Clear previous error
-
-    if ((email === '') && (password === '')) {
-      setErrorMessage('Please provide an email and password');
-      return;
-    }
-
-    if (email === '')  {
-      setErrorMessage('Please provide an email');
-      return;
-    }
-
-    if (password === '')  {
-      setErrorMessage('Please provide an password');
-      return;
-    }
-  
-    const result = await loginUser(email, password);
-  
-    if (result.success) {
-      router.push('/Home'); // Navigate to sign up screen screen (change this later)
-    } else {
-      setErrorMessage(result.message);
-      setPassword('');
-    }
-  };
+  useClearInputs(setEmail, setPassword, setErrorMessage);
 
   return (
     <View className="flex-1 justify-center  px-4 bg-white">
       {/* 1. Title */}
-      <Text className="text-2xl font-bold mb-6 text-center">
-        Sign In
-      </Text>
+      <Text className="text-2xl font-bold mb-6 text-center">Sign In</Text>
 
       {/* 2. Email input */}
       <TextInput
@@ -69,26 +39,27 @@ export default function SignInScreen() {
       />
 
       {/* 4. Error message */}
-        {errorMessage ? (
-          <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
-        ): null}
-    
+      {errorMessage ? (
+        <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
+      ) : null}
 
       {/* 5. Login button */}
       <Pressable
-        className="bg-blue-500 rounded py-3 mb-4"
-        onPress={handleLogin}
+        className="bg-blue-600 rounded py-3 mb-4"
+        onPress={() =>
+          handleLogin(email, password, setErrorMessage, setPassword)
+        }
       >
-        <Text className="text-center text-white font-semibold">
-          Log In
-        </Text>
+        <Text className="text-center text-white font-semibold">Log In</Text>
       </Pressable>
 
       {/* 6. Sign-up link text */}
       <View className="flex-row justify-center">
         <Text>Don’t have an account? </Text>
-        <Link className="text-blue-500" href="/SignUpScreen">Sign Up</Link>
+        <Link className="text-blue-600" push href="/SignUpScreen">
+          Sign Up
+        </Link>
       </View>
     </View>
-  )
+  );
 }

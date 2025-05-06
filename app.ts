@@ -1,9 +1,9 @@
 import express from "express";
-import { PORT } from "./config/env.js";
-import authRouter from "./routes/auth.routes.js";
-import todoRouter from "./routes/todo.routes.js";
-import ConnectToDatabase from "./database/mongodb.js";
-import errorMiddleware from "./middlewares/error.middleware.js";
+import { PORT } from "./config/env";
+import authRouter from "./routes/auth.routes";
+import todoRouter from "./routes/todo.routes";
+import ConnectToDatabase from "./database/mongodb";
+import errorMiddleware from "./middlewares/error.middleware";
 import cors from "cors";
 
 const app = express();

@@ -1,68 +1,22 @@
 import { View, TextInput, FlatList, Pressable, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import { postNewTodo } from "@/services/todo.service";
+import {
+  Todo,
+  addBlankTodo,
+  changeTodoText,
+  getTodosFromDb,
+  saveTodoToDb,
+  updateTodoFromDb,
+  handleCheckMark,
+} from "@/helper_functions/todoHelpers";
 
-const Home = () => {
-  type Todo = {
-    _id: string;
-    todoText: string;
-    isCompleted: boolean;
-    isNewTodo: boolean;
-  };
-
+export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const handleAddBlankTodo = () => {
-    const newTodo = {
-      _id: Date.now().toString(),
-      todoText: "",
-      isCompleted: false,
-      isNewTodo: true,
-    };
-
-    setTodos((prev) => [...prev, newTodo]);
-  };
-
-  const handleTextChange = (newText: string, _id: string) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo._id === _id ? { ...todo, todoText: newText } : todo
-      )
-    );
-  };
-
-  const handleAddRealTodo = async (tempTodo: Todo) => {
-    const result = await postNewTodo(tempTodo.todoText, tempTodo.isCompleted);
-
-    if (!result.success) {
-      setErrorMessage(result.message);
-      return;
-    }
-
-    const [todoFromDb] = result.data.newTodo;
-
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo._id === tempTodo._id
-          ? {
-              _id: todoFromDb._id,
-              todoText: todoFromDb.todoText,
-              isCompleted: todoFromDb.isCompleted,
-              isNewTodo: false,
-            }
-          : todo
-      )
-    );
-  };
-
-  const handleUpdate = () => {
-    console.log("placeholder update function");
-  };
 
   const renderRightActions = () => (
     <View className="flex-row bg-yellow-600 ">
@@ -71,6 +25,10 @@ const Home = () => {
       </Pressable>
     </View>
   );
+
+  useEffect(() => {
+    getTodosFromDb(setTodos, setErrorMessage);
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 relative">
@@ -82,16 +40,40 @@ const Home = () => {
         renderItem={({ item }) => (
           <ReanimatedSwipeable renderRightActions={renderRightActions}>
             <View className="flex-row items-center justify-center rounded">
-              <Pressable className="w-6 h-6 rounded-full border border-gray-400 mr-3" />
+              <Pressable
+                onPress={() =>
+                  handleCheckMark(
+                    item._id,
+                    item.isCompleted,
+                    setTodos,
+                    setErrorMessage
+                  )
+                }
+                className={`w-6 h-6 rounded-full mr-3 border items-center justify-center
+                  ${
+                    item.isCompleted
+                      ? "bg-blue-600 border-blue-600"
+                      : "border-gray-400"
+                  }
+                `}
+              >
+                {item.isCompleted && (
+                  <AntDesign name="check" size={16} color="white" />
+                )}
+              </Pressable>
               <TextInput
-                className="flex-1 bg-red-300 rounded px-3 py-2"
-                placeholder="To-do..."
+                className="flex-1 bg-blue-600 rounded px-3 py-2"
+                placeholder=""
                 editable={true}
                 multiline={true}
                 value={item.todoText}
-                onChangeText={(text) => handleTextChange(text, item._id)}
+                onChangeText={(text) =>
+                  changeTodoText(item._id, text, setTodos)
+                }
                 onBlur={() => {
-                  item.isNewTodo ? handleAddRealTodo(item) : handleUpdate();
+                  item.isNewTodo
+                    ? saveTodoToDb(item, setTodos, setErrorMessage)
+                    : updateTodoFromDb();
                 }}
               />
             </View>
@@ -101,7 +83,7 @@ const Home = () => {
 
       <Pressable
         className="absolute bottom-6 right-6 w-12 h-12 bg-blue-600 rounded-full items-center justify-center"
-        onPress={handleAddBlankTodo}
+        onPress={() => addBlankTodo(setTodos)}
       >
         <AntDesign name="plus" size={24} color="white" />
       </Pressable>
@@ -111,6 +93,4 @@ const Home = () => {
       ) : null}
     </SafeAreaView>
   );
-};
-
-export default Home;
+}
