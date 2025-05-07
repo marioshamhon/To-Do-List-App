@@ -16,6 +16,6 @@ todoRouter.post("/", authenticateUser, createTodo);
 
 todoRouter.patch("/:id", updateTodos);
 
-// todoRouter.delete('/:id')
+// todoRouter.delete('/:id, deleteTods')
 
 export default todoRouter;

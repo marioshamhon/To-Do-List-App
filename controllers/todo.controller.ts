@@ -3,6 +3,41 @@ import Todo from "../models/todo.model";
 import CustomError from "../utils/CustomError";
 import { NextFunction, Request, Response } from "express";
 
+export async function getTodos(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      const error = new CustomError("UserId field invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const userTodos = await Todo.find({ userId });
+
+    if (!userTodos) {
+      const error = new CustomError("Failed to get user todos");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      success: true,
+      message:
+        "successfully got the todos from the getTodos function on the server side",
+      data: {
+        userTodos,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function createTodo(
   req: Request,
   res: Response,
@@ -57,41 +92,6 @@ export async function createTodo(
   }
 }
 
-export async function getTodos(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const userId = req.userId;
-
-    if (!userId) {
-      const error = new CustomError("UserId field invalid");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const userTodos = await Todo.find({ userId });
-
-    if (!userTodos) {
-      const error = new CustomError("Failed to get user todos");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    res.status(200).json({
-      success: true,
-      message:
-        "successfully got the todos from the getTodos function on the server side",
-      data: {
-        userTodos,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function updateTodos(
   req: Request,
   res: Response,
@@ -128,8 +128,6 @@ export async function updateTodos(
       updates = { isCompleted: isCompleted };
     }
 
-    console.log("updates object", updates);
-
     const updatedMongoDocument = await Todo.findByIdAndUpdate(
       mongoDocumentId,
       updates,
@@ -155,4 +153,4 @@ export async function updateTodos(
   }
 }
 
-//delete todo function
+//delete todos function

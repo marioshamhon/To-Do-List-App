@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", authRouter); // http://api/auth/sign-in or http://api/auth/sign-up
-app.use("/api/todo", todoRouter); // http://api/todos/ here we have four different methods
+app.use("/api/todos", todoRouter); // http://api/todos/ here we have four different methods
 
 app.use(errorMiddleware);
 

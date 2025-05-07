@@ -1,22 +1,23 @@
 import { View, TextInput, FlatList, Pressable, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import {
   Todo,
-  addBlankTodo,
-  changeTodoText,
-  getTodosFromDb,
-  saveTodoToDb,
-  updateTodoFromDb,
-  handleCheckMark,
+  handleAddBlankTodo,
+  handleChangeTodoText,
+  handleFetchTodos,
+  handlePostNewTodo,
+  handleUpdateTodoText,
+  handleUpdateToggleCheckMark,
 } from "@/helper_functions/todoHelpers";
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const originalTodoText = useRef("");
 
   const renderRightActions = () => (
     <View className="flex-row bg-yellow-600 ">
@@ -27,7 +28,7 @@ export default function Home() {
   );
 
   useEffect(() => {
-    getTodosFromDb(setTodos, setErrorMessage);
+    handleFetchTodos(setTodos, setErrorMessage);
   }, []);
 
   return (
@@ -42,7 +43,7 @@ export default function Home() {
             <View className="flex-row items-center justify-center rounded">
               <Pressable
                 onPress={() =>
-                  handleCheckMark(
+                  handleUpdateToggleCheckMark(
                     item._id,
                     item.isCompleted,
                     setTodos,
@@ -67,13 +68,29 @@ export default function Home() {
                 editable={true}
                 multiline={true}
                 value={item.todoText}
+                onFocus={() => {
+                  originalTodoText.current = item.todoText;
+                }}
                 onChangeText={(text) =>
-                  changeTodoText(item._id, text, setTodos)
+                  handleChangeTodoText(item._id, text, setTodos)
                 }
                 onBlur={() => {
-                  item.isNewTodo
-                    ? saveTodoToDb(item, setTodos, setErrorMessage)
-                    : updateTodoFromDb();
+                  item.isNewTodo && item.todoText != ""
+                    ? handlePostNewTodo(
+                        item._id,
+                        item.todoText,
+                        item.isCompleted,
+                        setTodos,
+                        setErrorMessage
+                      )
+                    : item.todoText != originalTodoText.current
+                    ? handleUpdateTodoText(
+                        item._id,
+                        item.todoText,
+                        setTodos,
+                        setErrorMessage
+                      )
+                    : null;
                 }}
               />
             </View>
@@ -83,7 +100,7 @@ export default function Home() {
 
       <Pressable
         className="absolute bottom-6 right-6 w-12 h-12 bg-blue-600 rounded-full items-center justify-center"
-        onPress={() => addBlankTodo(setTodos)}
+        onPress={() => handleAddBlankTodo(setTodos)}
       >
         <AntDesign name="plus" size={24} color="white" />
       </Pressable>

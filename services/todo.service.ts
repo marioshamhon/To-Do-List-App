@@ -1,6 +1,6 @@
 import { getToken } from "../securestore/auth.storage";
 
-const todoApiURl = "http://192.168.1.6:5000/api/todo/";
+const todoApiURl = "http://192.168.1.6:5000/api/todos/";
 
 export async function fetchTodos() {
   try {
@@ -72,8 +72,8 @@ export async function postNewTodo(todoText: string, isCompleted: boolean) {
   }
 }
 
-export async function updateTodoCheckmark(
-  todoID: string,
+export async function updateTodoToggleCheckmark(
+  todoId: string,
   isCompleted: boolean
 ) {
   try {
@@ -85,7 +85,7 @@ export async function updateTodoCheckmark(
       );
     }
 
-    const response = await fetch(`${todoApiURl}${todoID}`, {
+    const response = await fetch(`${todoApiURl}${todoId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -111,7 +111,7 @@ export async function updateTodoCheckmark(
   }
 }
 
-export async function updateTodoText(todoText: string) {
+export async function updateTodoText(todoId: string, todoText: string) {
   try {
     const token = await getToken();
 
@@ -121,7 +121,7 @@ export async function updateTodoText(todoText: string) {
       );
     }
 
-    const response = await fetch(todoApiURl, {
+    const response = await fetch(`${todoApiURl}${todoId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +134,7 @@ export async function updateTodoText(todoText: string) {
     const responseData = await response.json();
 
     if (response.ok) {
-      return { success: true, data: responseData };
+      return { success: true, data: responseData.data };
     } else {
       return {
         success: false,
@@ -146,3 +146,5 @@ export async function updateTodoText(todoText: string) {
     return { success: false, message: "Unexpected error occurred" };
   }
 }
+
+//DeleteTodo function

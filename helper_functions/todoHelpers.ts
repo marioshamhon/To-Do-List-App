@@ -2,7 +2,8 @@ import { Dispatch, SetStateAction } from "react";
 import {
   fetchTodos,
   postNewTodo,
-  updateTodoCheckmark,
+  updateTodoToggleCheckmark,
+  updateTodoText,
 } from "@/services/todo.service";
 import Todo from "@/models/todo.model";
 
@@ -13,7 +14,9 @@ export type Todo = {
   isNewTodo: boolean;
 };
 
-export function addBlankTodo(setTodos: Dispatch<SetStateAction<Todo[]>>): void {
+export function handleAddBlankTodo(
+  setTodos: Dispatch<SetStateAction<Todo[]>>
+): void {
   const newTodo: Todo = {
     _id: Date.now().toString(),
     todoText: "",
@@ -23,7 +26,7 @@ export function addBlankTodo(setTodos: Dispatch<SetStateAction<Todo[]>>): void {
   setTodos((prev) => [...prev, newTodo]);
 }
 
-export function changeTodoText(
+export function handleChangeTodoText(
   id: string,
   newText: string,
   setTodos: Dispatch<SetStateAction<Todo[]>>
@@ -35,7 +38,7 @@ export function changeTodoText(
   );
 }
 
-export async function getTodosFromDb(
+export async function handleFetchTodos(
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>
 ): Promise<void> {
@@ -56,12 +59,14 @@ export async function getTodosFromDb(
   setTodos(todosFromDbWithFlag);
 }
 
-export async function saveTodoToDb(
-  tempTodo: Todo,
+export async function handlePostNewTodo(
+  todoId: string,
+  todoText: string,
+  isCompleted: boolean,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>
 ): Promise<void> {
-  const result = await postNewTodo(tempTodo.todoText, tempTodo.isCompleted);
+  const result = await postNewTodo(todoText, isCompleted);
 
   if (!result.success) {
     setErrorMessage(result.message);
@@ -72,7 +77,7 @@ export async function saveTodoToDb(
 
   setTodos((prevTodos) =>
     prevTodos.map((todo) =>
-      todo._id === tempTodo._id
+      todo._id === todoId
         ? {
             ...todoFromDb,
             isNewTodo: false,
@@ -82,7 +87,7 @@ export async function saveTodoToDb(
   );
 }
 
-export async function handleCheckMark(
+export async function handleUpdateToggleCheckMark(
   todoId: string,
   isCompletedCurrentStuatus: boolean,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
@@ -90,7 +95,7 @@ export async function handleCheckMark(
 ): Promise<void> {
   const isCompletedStaus = !isCompletedCurrentStuatus;
 
-  const result = await updateTodoCheckmark(todoId, isCompletedStaus);
+  const result = await updateTodoToggleCheckmark(todoId, isCompletedStaus);
 
   if (!result.success) {
     setErrorMessage(result.message);
@@ -106,7 +111,26 @@ export async function handleCheckMark(
   );
 }
 
-export function updateTodoFromDb() {
-  //make async later
-  console.log("placeholder update function");
+export async function handleUpdateTodoText(
+  todoId: string,
+  updatedTodoText: string,
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>
+): Promise<void> {
+  const result = await updateTodoText(todoId, updatedTodoText);
+
+  if (!result.success) {
+    setErrorMessage(result.message);
+    return;
+  }
+
+  const updatedTodoFromDb = result.data.updatedMongoDocument;
+
+  setTodos((prevTodos) =>
+    prevTodos.map((todo) =>
+      todo._id === todoId ? { ...updatedTodoFromDb, isNewTodo: false } : todo
+    )
+  );
 }
+
+//handleDeleteTodo

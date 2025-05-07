@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "dev": "nodemon --watch . --ext ts,js,json --exec \"ts-node --files --project tsconfig.server.json app.ts\"",
+    "dev": "nodemon --signal SIGINT --watch . --ext ts,js,json --exec \"ts-node --files --project tsconfig.server.json app.ts\"",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
