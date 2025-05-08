@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useRef } from "react";
 import {
   fetchTodos,
   postNewTodo,
@@ -58,6 +58,17 @@ export function handleOnBlur(
   }
 }
 
+function handleUpdateTodoInList(
+  currentTodosArray: Todo[],
+  todoFromDb: Todo
+): Todo[] {
+  const newTodosArray = currentTodosArray.map((todo) =>
+    todo._id === todoFromDb._id ? { ...todoFromDb, isNewTodo: false } : todo
+  );
+
+  return newTodosArray;
+}
+
 export async function handleFetchTodos(
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>
@@ -80,7 +91,7 @@ export async function handleFetchTodos(
 }
 
 async function handlePostNewTodo(
-  todoId: string,
+  tempTodoId: string,
   todoText: string,
   isCompleted: boolean,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
@@ -95,16 +106,18 @@ async function handlePostNewTodo(
 
   const [todoFromDb] = result.data.newTodo;
 
-  setTodos((prevTodos) =>
-    prevTodos.map((todo) =>
-      todo._id === todoId
-        ? {
-            ...todoFromDb,
-            isNewTodo: false,
-          }
-        : todo
-    )
-  );
+  setTodos((currentTodosArray) => {
+    const filteredTodos = currentTodosArray.filter(
+      (todo) => todo._id !== tempTodoId
+    );
+
+    const newTodosArray = [
+      ...filteredTodos,
+      { ...todoFromDb, isNewTodo: false },
+    ];
+
+    return newTodosArray;
+  });
 }
 
 export async function handleUpdateToggleCheckMark(
@@ -122,12 +135,10 @@ export async function handleUpdateToggleCheckMark(
     return;
   }
 
-  const updatedTodoFromDb = result.data.updatedTodo;
+  const todoFromDb = result.data.updatedTodo;
 
-  setTodos((prevTodos) =>
-    prevTodos.map((todo) =>
-      todo._id === todoId ? { ...updatedTodoFromDb, isNewTodo: false } : todo
-    )
+  setTodos((currentTodosArray) =>
+    handleUpdateTodoInList(currentTodosArray, todoFromDb)
   );
 }
 
@@ -144,12 +155,10 @@ async function handleUpdateTodoText(
     return;
   }
 
-  const updatedTodoFromDb = result.data.updatedTodo;
+  const todoFromDb = result.data.updatedTodo;
 
-  setTodos((prevTodos) =>
-    prevTodos.map((todo) =>
-      todo._id === todoId ? { ...updatedTodoFromDb, isNewTodo: false } : todo
-    )
+  setTodos((currentTodosArray) =>
+    handleUpdateTodoInList(currentTodosArray, todoFromDb)
   );
 }
 
