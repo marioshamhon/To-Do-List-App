@@ -147,4 +147,36 @@ export async function updateTodoText(todoId: string, todoText: string) {
   }
 }
 
-//DeleteTodo function
+export async function deleteTodo(toddoId: string) {
+  try {
+    const token = await getToken();
+
+    if (!token) {
+      throw new Error(
+        "Token not found this is comming from the deletedTodo function"
+      );
+    }
+
+    const response = await fetch(`${todoApiURl}${toddoId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+
+    if (response.ok) {
+      return { success: true };
+    } else {
+      return {
+        success: false,
+        message: responseData.error || "delete todos failed server side",
+      };
+    }
+  } catch (error) {
+    console.error("Error in deleteTodo function:", error);
+    return { success: false, message: "Unexpected error occurred" };
+  }
+}

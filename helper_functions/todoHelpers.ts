@@ -1,9 +1,10 @@
-import { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import {
   fetchTodos,
   postNewTodo,
   updateTodoToggleCheckmark,
   updateTodoText,
+  deleteTodo,
 } from "@/services/todo.service";
 import Todo from "@/models/todo.model";
 
@@ -38,6 +39,25 @@ export function handleChangeTodoText(
   );
 }
 
+export function handleOnBlur(
+  item: Todo,
+  originalTodoText: React.RefObject<string>,
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>
+) {
+  if (item.isNewTodo && item.todoText != "") {
+    handlePostNewTodo(
+      item._id,
+      item.todoText,
+      item.isCompleted,
+      setTodos,
+      setErrorMessage
+    );
+  } else if (item.todoText != originalTodoText.current) {
+    handleUpdateTodoText(item._id, item.todoText, setTodos, setErrorMessage);
+  }
+}
+
 export async function handleFetchTodos(
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>
@@ -59,7 +79,7 @@ export async function handleFetchTodos(
   setTodos(todosFromDbWithFlag);
 }
 
-export async function handlePostNewTodo(
+async function handlePostNewTodo(
   todoId: string,
   todoText: string,
   isCompleted: boolean,
@@ -102,7 +122,7 @@ export async function handleUpdateToggleCheckMark(
     return;
   }
 
-  const updatedTodoFromDb = result.data.updatedMongoDocument;
+  const updatedTodoFromDb = result.data.updatedTodo;
 
   setTodos((prevTodos) =>
     prevTodos.map((todo) =>
@@ -111,7 +131,7 @@ export async function handleUpdateToggleCheckMark(
   );
 }
 
-export async function handleUpdateTodoText(
+async function handleUpdateTodoText(
   todoId: string,
   updatedTodoText: string,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
@@ -124,7 +144,7 @@ export async function handleUpdateTodoText(
     return;
   }
 
-  const updatedTodoFromDb = result.data.updatedMongoDocument;
+  const updatedTodoFromDb = result.data.updatedTodo;
 
   setTodos((prevTodos) =>
     prevTodos.map((todo) =>
@@ -133,4 +153,20 @@ export async function handleUpdateTodoText(
   );
 }
 
-//handleDeleteTodo
+export async function handleDeleteTodo(
+  toddoId: string,
+  todosArray: Todo[],
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>
+): Promise<void> {
+  const result = await deleteTodo(toddoId);
+
+  if (!result.success) {
+    setErrorMessage(result.message);
+    return;
+  }
+
+  const updatedTodoArray = todosArray.filter((todo) => todo._id != toddoId);
+
+  setTodos(updatedTodoArray);
+}

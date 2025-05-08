@@ -8,10 +8,10 @@ import {
   Todo,
   handleAddBlankTodo,
   handleChangeTodoText,
+  handleOnBlur,
   handleFetchTodos,
-  handlePostNewTodo,
-  handleUpdateTodoText,
   handleUpdateToggleCheckMark,
+  handleDeleteTodo,
 } from "@/helper_functions/todoHelpers";
 
 export default function Home() {
@@ -19,13 +19,20 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
   const originalTodoText = useRef("");
 
-  const renderRightActions = () => (
-    <View className="flex-row bg-yellow-600 ">
-      <Pressable className="p-1 justify-center rounded">
-        <Feather name="x" size={24} color="white" />
-      </Pressable>
-    </View>
-  );
+  function renderRightActions(todoId: string) {
+    return (
+      <View className="flex-row bg-yellow-600 ">
+        <Pressable
+          className="p-1 justify-center rounded"
+          onPress={() =>
+            handleDeleteTodo(todoId, todos, setTodos, setErrorMessage)
+          }
+        >
+          <Feather name="x" size={24} color="white" />
+        </Pressable>
+      </View>
+    );
+  }
 
   useEffect(() => {
     handleFetchTodos(setTodos, setErrorMessage);
@@ -39,7 +46,9 @@ export default function Home() {
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         contentContainerStyle={{ paddingHorizontal: 16 }}
         renderItem={({ item }) => (
-          <ReanimatedSwipeable renderRightActions={renderRightActions}>
+          <ReanimatedSwipeable
+            renderRightActions={() => renderRightActions(item._id)}
+          >
             <View className="flex-row items-center justify-center rounded">
               <Pressable
                 onPress={() =>
@@ -75,22 +84,12 @@ export default function Home() {
                   handleChangeTodoText(item._id, text, setTodos)
                 }
                 onBlur={() => {
-                  item.isNewTodo && item.todoText != ""
-                    ? handlePostNewTodo(
-                        item._id,
-                        item.todoText,
-                        item.isCompleted,
-                        setTodos,
-                        setErrorMessage
-                      )
-                    : item.todoText != originalTodoText.current
-                    ? handleUpdateTodoText(
-                        item._id,
-                        item.todoText,
-                        setTodos,
-                        setErrorMessage
-                      )
-                    : null;
+                  handleOnBlur(
+                    item,
+                    originalTodoText,
+                    setTodos,
+                    setErrorMessage
+                  );
                 }}
               />
             </View>

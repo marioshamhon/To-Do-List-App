@@ -6,6 +6,7 @@ import {
   getTodos,
   createTodo,
   updateTodos,
+  deleteTods,
 } from "../controllers/todo.controller";
 
 const todoRouter = Router();
@@ -14,8 +15,8 @@ todoRouter.get("/", authenticateUser, getTodos);
 
 todoRouter.post("/", authenticateUser, createTodo);
 
-todoRouter.patch("/:id", updateTodos);
+todoRouter.patch("/:id", authenticateUser, updateTodos);
 
-// todoRouter.delete('/:id, deleteTods')
+todoRouter.delete("/:id", authenticateUser, deleteTods);
 
 export default todoRouter;

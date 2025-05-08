@@ -128,13 +128,11 @@ export async function updateTodos(
       updates = { isCompleted: isCompleted };
     }
 
-    const updatedMongoDocument = await Todo.findByIdAndUpdate(
-      mongoDocumentId,
-      updates,
-      { new: true }
-    );
+    const updatedTodo = await Todo.findByIdAndUpdate(mongoDocumentId, updates, {
+      new: true,
+    });
 
-    if (!updatedMongoDocument) {
+    if (!updatedTodo) {
       const error = new CustomError("Failed to get updated document");
       error.statusCode = 404;
       throw error;
@@ -145,7 +143,7 @@ export async function updateTodos(
       message:
         "successfully got the updated todo from the updateTodos function on the server side",
       data: {
-        updatedMongoDocument,
+        updatedTodo,
       },
     });
   } catch (error) {
@@ -153,4 +151,34 @@ export async function updateTodos(
   }
 }
 
-//delete todos function
+export async function deleteTods(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const documentIdToDelete = req.params.id;
+
+    if (!documentIdToDelete) {
+      const error = new CustomError("mongo document _id field invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const deletedTodo = await Todo.findByIdAndDelete(documentIdToDelete);
+
+    if (!deletedTodo) {
+      const error = new CustomError("Failed to get deleted todos");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      success: true,
+      message:
+        "successfully deleted the todo from the deleteTodos function on the server side",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
