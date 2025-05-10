@@ -1,1 +1,0 @@
-export const placeholderTextColor = '#999999';

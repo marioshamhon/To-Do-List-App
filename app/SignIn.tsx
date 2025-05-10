@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import { Link } from "expo-router";
-import { placeholderTextColor } from "../styles/colors";
+import colors from "tailwindcss/colors";
 import { useClearInputs } from "../hooks/useClearInputs";
 import { handleLogin } from "../helper_functions/authHelpers";
 
-export default function SignInScreen() {
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -21,7 +21,7 @@ export default function SignInScreen() {
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-4"
         placeholder="Email"
-        placeholderTextColor={placeholderTextColor}
+        placeholderTextColor={colors.gray[400]}
         autoCapitalize="none"
         keyboardType="email-address"
         value={email}
@@ -32,7 +32,7 @@ export default function SignInScreen() {
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-6"
         placeholder="Password"
-        placeholderTextColor={placeholderTextColor}
+        placeholderTextColor={colors.gray[400]}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -56,7 +56,7 @@ export default function SignInScreen() {
       {/* 6. Sign-up link text */}
       <View className="flex-row justify-center">
         <Text>Don’t have an account? </Text>
-        <Link className="text-blue-600" push href="/SignUpScreen">
+        <Link className="text-blue-600" push href="/SignUp">
           Sign Up
         </Link>
       </View>

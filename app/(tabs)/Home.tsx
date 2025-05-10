@@ -39,7 +39,7 @@ export default function Home() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 relative">
+    <SafeAreaView className="flex-1 relative bg-white">
       <FlatList
         data={todos}
         keyExtractor={(item) => item._id}

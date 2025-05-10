@@ -11,8 +11,8 @@ export default function RootLayout() {
         <StatusBar hidden={true} />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
-          <Stack.Screen name="SignInScreen" />
-          <Stack.Screen name="SignUpScreen" />
+          <Stack.Screen name="SignIn" />
+          <Stack.Screen name="SignUp" />
           <Stack.Screen name="(tabs)" />
         </Stack>
       </SafeAreaProvider>
