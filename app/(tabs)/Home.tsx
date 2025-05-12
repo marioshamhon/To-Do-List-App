@@ -13,9 +13,10 @@ import {
   handleUpdateToggleCheckMark,
   handleDeleteTodo,
 } from "@/helper_functions/todoHelpers";
+import { useTodos } from "../../contexts/todo.context";
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const { todos, setTodos } = useTodos();
   const [errorMessage, setErrorMessage] = useState("");
   const originalTodoText = useRef("");
 
@@ -59,7 +60,7 @@ export default function Home() {
                     setErrorMessage
                   )
                 }
-                className={`w-6 h-6 rounded-full mr-3 border items-center justify-center
+                className={`w-8 h-8 rounded-full mr-3 border items-center justify-center
                   ${
                     item.isCompleted
                       ? "bg-blue-600 border-blue-600"

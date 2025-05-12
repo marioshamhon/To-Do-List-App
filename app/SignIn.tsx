@@ -4,11 +4,14 @@ import { Link } from "expo-router";
 import colors from "tailwindcss/colors";
 import { useClearInputs } from "../hooks/useClearInputs";
 import { handleLogin } from "../helper_functions/authHelpers";
+import { useAuth } from "../contexts/auth.context";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { setUser } = useAuth();
 
   useClearInputs(setEmail, setPassword, setErrorMessage);
 
@@ -47,7 +50,7 @@ export default function SignIn() {
       <Pressable
         className="bg-blue-600 rounded py-3 mb-4"
         onPress={() =>
-          handleLogin(email, password, setErrorMessage, setPassword)
+          handleLogin(email, password, setErrorMessage, setPassword, setUser)
         }
       >
         <Text className="text-center text-white font-semibold">Log In</Text>

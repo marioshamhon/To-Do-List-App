@@ -1,18 +1,13 @@
 import * as SecureStore from "expo-secure-store";
 
-const TOKEN_KEY = "authToken";
-
-// Save token
-export async function saveToken(token: string) {
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+export async function saveItem(key: string, value: string) {
+  await SecureStore.setItemAsync(key, value);
 }
 
-// Get token
-export async function getToken() {
-  return await SecureStore.getItemAsync(TOKEN_KEY);
+export async function getItem(key: string) {
+  return await SecureStore.getItemAsync(key);
 }
 
-// Delete token (for sign out)
-export async function deleteToken() {
-  await SecureStore.deleteItemAsync(TOKEN_KEY);
+export async function deleteItem(key: string) {
+  await SecureStore.deleteItemAsync(key);
 }

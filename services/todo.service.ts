@@ -1,10 +1,10 @@
-import { getToken } from "../securestore/auth.storage";
+import { getItem } from "../securestore/auth.storage";
 
 const todoApiURl = "http://192.168.1.6:5000/api/todos/";
 
 export async function fetchTodos() {
   try {
-    const token = await getToken();
+    const token = await getItem("token");
 
     if (!token) {
       throw new Error(
@@ -38,7 +38,7 @@ export async function fetchTodos() {
 
 export async function postNewTodo(todoText: string, isCompleted: boolean) {
   try {
-    const token = await getToken();
+    const token = await getItem("token");
 
     if (!token) {
       throw new Error(
@@ -77,7 +77,7 @@ export async function updateTodoToggleCheckmark(
   isCompleted: boolean
 ) {
   try {
-    const token = await getToken();
+    const token = await getItem("token");
 
     if (!token) {
       throw new Error(
@@ -113,7 +113,7 @@ export async function updateTodoToggleCheckmark(
 
 export async function updateTodoText(todoId: string, todoText: string) {
   try {
-    const token = await getToken();
+    const token = await getItem("token");
 
     if (!token) {
       throw new Error(
@@ -149,7 +149,7 @@ export async function updateTodoText(todoId: string, todoText: string) {
 
 export async function deleteTodo(toddoId: string) {
   try {
-    const token = await getToken();
+    const token = await getItem("token");
 
     if (!token) {
       throw new Error(

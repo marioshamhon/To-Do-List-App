@@ -10,17 +10,17 @@ type Tab = {
 type Props = {
   tabs: Tab[];
   selectedTab: string;
-  onSelectTab: (key: string) => void;
+  selectTabSetter: (key: string) => void;
 };
 
 function handleRenderTabItems(
   tabs: Tab[],
   selectedTab: string,
-  onSelectTab: (key: string) => void
+  selectTabSetter: (tabname: string) => void
 ) {
   const allTabs = tabs.map((tab) => {
     return (
-      <Pressable key={tab.tabname} onPress={() => onSelectTab(tab.tabname)}>
+      <Pressable key={tab.tabname} onPress={() => selectTabSetter(tab.tabname)}>
         <Text
           className={`mb-2 ${
             selectedTab === tab.tabname
@@ -38,10 +38,14 @@ function handleRenderTabItems(
   return allTabs;
 }
 
-export default function NavSideBar({ tabs, selectedTab, onSelectTab }: Props) {
+export default function NavSideBar({
+  tabs,
+  selectedTab,
+  selectTabSetter,
+}: Props) {
   return (
-    <View className="w-[30%] bg-emerald-400 p-2">
-      {handleRenderTabItems(tabs, selectedTab, onSelectTab)}
+    <View className="w-[30%]  p-2">
+      {handleRenderTabItems(tabs, selectedTab, selectTabSetter)}
     </View>
   );
 }

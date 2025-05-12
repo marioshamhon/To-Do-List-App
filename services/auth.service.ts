@@ -1,4 +1,4 @@
-import { saveToken } from "../securestore/auth.storage";
+import { saveItem } from "../securestore/auth.storage";
 
 const signUpApiUrl = "http://192.168.1.6:5000/api/auth/sign-up";
 
@@ -22,9 +22,9 @@ export async function registerUser(
     const responseData = await response.json();
 
     if (response.ok) {
-      await saveToken(responseData.data.token);
+      await saveItem("token", responseData.data.token);
 
-      return { success: true };
+      return { success: true, data: responseData.data };
     } else {
       return {
         success: false,
@@ -51,8 +51,8 @@ export async function loginUser(email: string, password: string) {
     const responseData = await response.json();
 
     if (response.ok) {
-      await saveToken(responseData.data.token);
-      return { success: true };
+      await saveItem("token", responseData.data.token);
+      return { success: true, data: responseData.data };
     } else {
       return {
         success: false,
