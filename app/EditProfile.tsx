@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/auth.context";
 
 export default function EditProfile() {
   const { user } = useAuth();
-  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <View className="">

@@ -5,8 +5,8 @@ import {
   updateTodoToggleCheckmark,
   updateTodoText,
   deleteTodo,
-} from "@/services/todo.service";
-import Todo from "@/models/todo.model";
+} from "../services/todo.service";
+import Todo from "../models/todo.model";
 
 export type Todo = {
   _id: string;

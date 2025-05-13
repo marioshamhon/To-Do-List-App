@@ -1,21 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, SetStateAction, Dispatch } from "react";
 import { View, Text, TextInput, Pressable, Modal } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "tailwindcss/colors";
+import { useAuth } from "../contexts/auth.context";
+import { handleSaveButtonPressed } from "../helper_functions/userHelpers";
 
 interface EditProfileRowChangeModalProps {
-  textTitle: string;
+  label: string;
   showModal: boolean;
-  setShowModal: (value: boolean) => void;
+  setShowModal: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function EditProfileRowChangeModal({
-  textTitle,
+  label,
   showModal,
   setShowModal,
 }: EditProfileRowChangeModalProps) {
   const [nameOrEmail, setNameOrEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { setUser } = useAuth();
 
   return (
     <Modal visible={showModal} animationType="slide" transparent>
@@ -27,12 +30,12 @@ export default function EditProfileRowChangeModal({
             </Text>
           ) : null}
           <Text className="text-2xl font-bold mb-6 text-center">
-            {`Change ${textTitle}`}
+            {`Change ${label}`}
           </Text>
 
           <TextInput
             className="border border-gray-300 rounded p-2 mb-4"
-            placeholder={`Enter new ${textTitle.toLowerCase()}`}
+            placeholder={`Enter new ${label.toLowerCase()}`}
             placeholderTextColor={colors.gray[400]}
             onChangeText={setNameOrEmail}
             value={nameOrEmail}
@@ -50,7 +53,15 @@ export default function EditProfileRowChangeModal({
 
             <Pressable
               className="bg-blue-600 rounded p-2"
-              onPress={() => console.log("save button pressed")}
+              onPress={() =>
+                handleSaveButtonPressed(
+                  nameOrEmail,
+                  label,
+                  setUser,
+                  setErrorMessage,
+                  setShowModal
+                )
+              }
             >
               <Text className="text-center text-white font-semibold">Save</Text>
             </Pressable>

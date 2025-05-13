@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getItem, saveItem } from "../securestore/auth.storage";
+import { handleFetchUser } from "../helper_functions/userHelpers";
 import type { ReactNode } from "react";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: UserObjectWithoutPassword | null;
-  setUser: (userObject: User) => Promise<void>;
+  setUser: (user: User) => void;
 }
 
 interface AuthProviderProps {
@@ -22,25 +22,19 @@ type UserObjectWithoutPassword = Omit<User, "password">;
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  setUser: async (_userObject: User): Promise<void> => {},
+  setUser: () => {},
 });
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUserState] = useState<UserObjectWithoutPassword | null>(null);
 
-  const setUser = async (userObject: User) => {
-    const { password, ...userObjectWithoutPassword } = userObject; //strip the password from the object
-    userObject = undefined as any; //destroy the original object for security purposes
-    setUserState(userObjectWithoutPassword);
-    await saveItem("user", JSON.stringify(userObjectWithoutPassword));
+  const setUser = (userWithPassword: User) => {
+    const { password, ...safeUser } = userWithPassword;
+    setUserState(safeUser as UserObjectWithoutPassword);
   };
 
   useEffect(() => {
-    const loadUser = async () => {
-      const storedUser = await getItem("user");
-      if (storedUser) setUserState(JSON.parse(storedUser));
-    };
-    loadUser();
+    handleFetchUser(setUser);
   }, []);
 
   return (

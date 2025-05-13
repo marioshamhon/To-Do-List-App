@@ -27,7 +27,7 @@ export default function EditProfileRow({ label, value }: EditProfileRowProps) {
 
       {showModal && (
         <EditProfileRowChangeModal
-          textTitle={label}
+          label={label}
           showModal={showModal}
           setShowModal={setShowModal}
         />
