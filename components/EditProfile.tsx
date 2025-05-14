@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import EditProfileRow from "../components/EditProfileRow";
 import { useAuth } from "@/contexts/auth.context";
 

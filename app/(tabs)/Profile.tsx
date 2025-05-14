@@ -1,8 +1,9 @@
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavSideBar from "../../components/NavSideBar";
-import EditProfile from "../EditProfile";
+import EditProfile from "../../components/EditProfile";
+import ChangePassword from "../../components/ChangePassword";
 import SignOut from "../SignOut";
 import { useAuth } from "../../contexts/auth.context";
 import { useTodos } from "../../contexts/todo.context";
@@ -10,6 +11,7 @@ import { useTodos } from "../../contexts/todo.context";
 export default function profile() {
   const tabs = [
     { tabname: "edit-profile", label: "Edit Profile" },
+    { tabname: "change-password", label: "Change Password" },
     { tabname: "sign-out", label: "Sign Out" },
   ];
 
@@ -20,22 +22,22 @@ export default function profile() {
   const { todos } = useTodos();
 
   return (
-    <SafeAreaView className="flex-1 p-4 items-center justify-center bg-white">
-      <Text className=" text-lg font-semibold mb-2">
+    <SafeAreaView className=" flex-1  bg-white ">
+      <Text className=" text-center text-lg font-semibold mb-2">
         {`Hello ${user?.name}, welcome to your profile.`}
       </Text>
-      <Text className=" text-center mb-4 font-semibold">{`you have ${todos.length} todos`}</Text>
+      <Text className="text-center mb-4 font-semibold">{`you have ${todos.length} todos`}</Text>
 
-      <View className="flex-1 flex-row gap-4">
-        <NavSideBar
-          tabs={tabs}
-          selectedTab={selectedTab}
-          selectTabSetter={setSelectedTab}
-        />
-        <View className="w-[70%] bg-white">
-          {selectedTab === "edit-profile" && <EditProfile />}
-          {selectedTab === "sign-out" && <SignOut />}
-        </View>
+      <NavSideBar
+        tabs={tabs}
+        selectedTab={selectedTab}
+        selectTabSetter={setSelectedTab}
+      />
+
+      <View className="px-4 w-full flex-1 justify-center">
+        {selectedTab === "edit-profile" && <EditProfile />}
+        {selectedTab === "change-password" && <ChangePassword />}
+        {selectedTab === "sign-out" && <SignOut />}
       </View>
     </SafeAreaView>
   );

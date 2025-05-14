@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 import { View, Text, Pressable } from "react-native";
 
@@ -10,24 +10,23 @@ type Tab = {
 type Props = {
   tabs: Tab[];
   selectedTab: string;
-  selectTabSetter: (key: string) => void;
+  selectTabSetter: Dispatch<SetStateAction<string>>;
 };
 
 function handleRenderTabItems(
   tabs: Tab[],
   selectedTab: string,
-  selectTabSetter: (tabname: string) => void
+  selectTabSetter: Dispatch<SetStateAction<string>>
 ) {
   const allTabs = tabs.map((tab) => {
     return (
       <Pressable key={tab.tabname} onPress={() => selectTabSetter(tab.tabname)}>
         <Text
-          className={`mb-2 ${
+          className={`mb-2   ${
             selectedTab === tab.tabname
               ? "text-blue-600 font-bold"
               : "text-black"
-          }
-                `}
+          }`}
         >
           {tab.label}
         </Text>
@@ -44,7 +43,7 @@ export default function NavSideBar({
   selectTabSetter,
 }: Props) {
   return (
-    <View className="w-[30%]  p-2">
+    <View className="flex-row w-full justify-around">
       {handleRenderTabItems(tabs, selectedTab, selectTabSetter)}
     </View>
   );

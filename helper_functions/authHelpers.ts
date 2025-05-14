@@ -11,7 +11,7 @@ export async function handleRegister(
   password: string,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   setPassword: Dispatch<SetStateAction<string>>,
-  setUser: (user: User) => Promise<void>
+  setUser: (user: User) => void
 ) {
   const minimumPasswordLength = 6;
 
@@ -62,7 +62,7 @@ export async function handleLogin(
   password: string,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   setPassword: Dispatch<SetStateAction<string>>,
-  setUser: (user: User) => Promise<void>
+  setUser: (user: User) => void
 ) {
   setErrorMessage(""); // Clear previous error
 
