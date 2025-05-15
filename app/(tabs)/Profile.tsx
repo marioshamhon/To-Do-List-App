@@ -1,5 +1,5 @@
-import { View, Text, Pressable } from "react-native";
-import React, { useState } from "react";
+import { View, Text } from "react-native";
+import React, { useState, Dispatch, SetStateAction } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavSideBar from "../../components/NavSideBar";
 import EditProfile from "../../components/EditProfile";
@@ -7,6 +7,10 @@ import ChangePassword from "../../components/ChangePassword";
 import SignOut from "../SignOut";
 import { useAuth } from "../../contexts/auth.context";
 import { useTodos } from "../../contexts/todo.context";
+
+export type SetTabProps = {
+  setSelectedTab: Dispatch<SetStateAction<string>>;
+};
 
 export default function profile() {
   const tabs = [
@@ -35,8 +39,15 @@ export default function profile() {
       />
 
       <View className="px-4 w-full flex-1 justify-center">
+        {selectedTab === "" && (
+          <Text className="text-2xl font-bold text-center">
+            Please Select a tab item
+          </Text>
+        )}
         {selectedTab === "edit-profile" && <EditProfile />}
-        {selectedTab === "change-password" && <ChangePassword />}
+        {selectedTab === "change-password" && (
+          <ChangePassword setSelectedTab={setSelectedTab} />
+        )}
         {selectedTab === "sign-out" && <SignOut />}
       </View>
     </SafeAreaView>

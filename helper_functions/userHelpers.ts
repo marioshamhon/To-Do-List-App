@@ -1,7 +1,12 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { fetchUser } from "../services/user.service";
-import { updateUserName } from "../services/user.service";
-import { updateUserEmail } from "../services/user.service";
+import {
+  fetchUser,
+  updateUserName,
+  updateUserEmail,
+  verifyUserPassword,
+  updateUserPassword,
+} from "../services/user.service";
+
 import { User } from "../contexts/auth.context";
 
 export async function handleFetchUser(setUser: (user: User) => void) {
@@ -79,4 +84,88 @@ async function handleUpdateUserEmail(
   setShowModal(false);
 
   setUser(updatedUserObjectFromDb);
+}
+
+export async function handleVerifyPassword(
+  password: string,
+  setStep: Dispatch<SetStateAction<string>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>,
+  setVerifyPassword: Dispatch<SetStateAction<string>>
+) {
+  setErrorMessage("");
+
+  if (password === "") {
+    setErrorMessage("Password field blank. Please enter your curent password");
+    return;
+  }
+
+  const result = await verifyUserPassword(password);
+
+  if (!result.success) {
+    setErrorMessage(result.message);
+    setVerifyPassword("");
+    return;
+  }
+
+  setStep("update");
+  setVerifyPassword(""); // Clear TextInput after password successfully verified
+}
+
+export async function handleUpdateUserPassword(
+  password: string,
+  confirmPassword: string,
+  setPassword: Dispatch<SetStateAction<string>>,
+  setConfirmPassword: Dispatch<SetStateAction<string>>,
+  setStep: Dispatch<SetStateAction<string>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>
+) {
+  const minimumPasswordLength = 6;
+
+  setErrorMessage("");
+
+  if (password === "") {
+    setErrorMessage("Password field blank");
+    setPassword("");
+    setConfirmPassword("");
+    return;
+  }
+
+  if (confirmPassword === "") {
+    setErrorMessage(" Confirm password field blank");
+    setPassword("");
+    setConfirmPassword("");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setErrorMessage(
+      " Passwords do not match. Please reneter your new password"
+    );
+    setPassword("");
+    setConfirmPassword("");
+    return;
+  }
+
+  if (password === confirmPassword && password.length < minimumPasswordLength) {
+    setErrorMessage(
+      `Password too short please provide an password with a minimum of ${minimumPasswordLength} characters`
+    );
+    setPassword("");
+    setConfirmPassword("");
+    return;
+  }
+
+  const result = await updateUserPassword(password);
+
+  if (!result.success) {
+    setErrorMessage(result.message);
+    setPassword("");
+    setConfirmPassword("");
+    return;
+  }
+
+  setStep("success");
+
+  setPassword(""); // Clear first TextInput after password successfully changed
+  setConfirmPassword(""); // Clear second TextInput after password successfully changed
 }

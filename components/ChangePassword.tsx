@@ -1,59 +1,38 @@
-import { useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
-import colors from "tailwindcss/colors";
+import { useState, Dispatch, SetStateAction } from "react";
+import { View, Text } from "react-native";
+import VerifyPasswordForm from "./VerifyPasswordForm";
+import NewPasswordForm from "./NewPasswordForm";
+import SuccessfullyChangedPasswordMessage from "./SuccessfullyChangedPasswordMessage";
+import { SetTabProps } from "../app/(tabs)/Profile";
 
-export default function ChangePassword() {
-  const [display, setDisplay] = useState<"verify password" | "update password">(
-    "verify password"
-  );
+export type ChangePasswordProps = {
+  setStep: Dispatch<SetStateAction<string>>;
+  setErrorMessage: Dispatch<SetStateAction<string>>;
+};
 
-  function showVerifyPassword() {
-    return (
-      <>
-        <Text className="text-2xl font-bold mb-6 text-center">
-          Change Password
-        </Text>
-
-        <TextInput
-          className="border border-gray-300 rounded px-3 py-2 mb-4"
-          placeholder="Enter current password"
-          placeholderTextColor={colors.gray[400]}
-        />
-        <Pressable className="bg-blue-600 rounded py-3 mb-4">
-          <Text className="text-center text-white font-semibold">Submit</Text>
-        </Pressable>
-      </>
-    );
-  }
-
-  function showEnterNewPassword() {
-    return (
-      <>
-        <Text className="text-2xl font-bold mb-6 text-center">
-          Enter New Password
-        </Text>
-        <TextInput
-          className="border border-gray-300 rounded px-3 py-2 mb-4"
-          placeholder="Enter new password"
-          placeholderTextColor={colors.gray[400]}
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-3 py-2 mb-4"
-          placeholder="Confirm new password"
-          placeholderTextColor={colors.gray[400]}
-        />
-        <Pressable className="bg-blue-600 rounded py-3 mb-4">
-          <Text className="text-center text-white font-semibold">Save</Text>
-        </Pressable>
-      </>
-    );
-  }
+export default function ChangePassword({ setSelectedTab }: SetTabProps) {
+  const [step, setStep] = useState("verify");
+  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <View>
-      {display === "verify password"
-        ? showVerifyPassword()
-        : showEnterNewPassword()}
+      {errorMessage ? (
+        <Text className="text-red-500 text-center mb-1">{errorMessage}</Text>
+      ) : null}
+      {step === "verify" && (
+        <VerifyPasswordForm
+          setStep={setStep}
+          setErrorMessage={setErrorMessage}
+        />
+      )}
+
+      {step === "update" && (
+        <NewPasswordForm setStep={setStep} setErrorMessage={setErrorMessage} />
+      )}
+
+      {step === "success" && (
+        <SuccessfullyChangedPasswordMessage setSelectedTab={setSelectedTab} />
+      )}
     </View>
   );
 }
