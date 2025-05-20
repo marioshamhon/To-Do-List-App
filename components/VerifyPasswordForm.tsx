@@ -3,12 +3,15 @@ import { Text, TextInput, Pressable } from "react-native";
 import colors from "tailwindcss/colors";
 import { handleVerifyPassword } from "../helper_functions/userHelpers";
 import { ChangePasswordProps } from "./ChangePassword";
+import { useAuth } from "../contexts/auth.context";
 
 export default function VerifyPasswordForm({
   setStep,
   setErrorMessage,
 }: ChangePasswordProps) {
   const [verifyPassword, setVerifyPassword] = useState("");
+
+  const { accessToken, setAccessToken } = useAuth();
 
   return (
     <>
@@ -31,7 +34,9 @@ export default function VerifyPasswordForm({
             verifyPassword,
             setStep,
             setErrorMessage,
-            setVerifyPassword
+            setVerifyPassword,
+            accessToken,
+            setAccessToken
           )
         }
       >

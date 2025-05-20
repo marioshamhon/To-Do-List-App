@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config/env";
+import { JWT_SECRET_ACCESS_TOKEN } from "../config/env";
 import { Request, Response, NextFunction } from "express";
 
 export default function authenticateUser(
@@ -17,7 +17,7 @@ export default function authenticateUser(
   const token = authHeader.split(" ")[1];
 
   try {
-    const decodedInformation = jwt.verify(token, JWT_SECRET);
+    const decodedInformation = jwt.verify(token, JWT_SECRET_ACCESS_TOKEN);
 
     if (
       typeof decodedInformation !== "string" &&
@@ -28,7 +28,9 @@ export default function authenticateUser(
 
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid or expired token" });
+    res.status(401).json({
+      message: "Invalid or expired token.",
+    });
     return;
   }
 }

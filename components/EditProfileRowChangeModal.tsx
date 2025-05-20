@@ -18,7 +18,7 @@ export default function EditProfileRowChangeModal({
   const [nameOrEmail, setNameOrEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { setUser } = useAuth();
+  const { setUser, accessToken, setAccessToken } = useAuth();
 
   return (
     <Modal visible={showModal} animationType="slide" transparent>
@@ -59,7 +59,9 @@ export default function EditProfileRowChangeModal({
                   label,
                   setUser,
                   setErrorMessage,
-                  setShowModal
+                  setShowModal,
+                  accessToken,
+                  setAccessToken
                 )
               }
             >

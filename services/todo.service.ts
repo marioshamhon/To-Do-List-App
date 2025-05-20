@@ -1,24 +1,27 @@
+import { Dispatch, SetStateAction } from "react";
 import { getItem } from "../securestore/auth.storage";
+
+import fetchWrapper from "./fetchWrapper";
+import { access } from "fs";
 
 const todoApiURl = "http://192.168.1.6:5000/api/todos/";
 
-export async function fetchTodos() {
+export async function fetchTodos(
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
-
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the fetchTodos function"
-      );
-    }
-
-    const response = await fetch(todoApiURl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetchWrapper(
+      todoApiURl,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -36,25 +39,26 @@ export async function fetchTodos() {
   }
 }
 
-export async function postNewTodo(todoText: string, isCompleted: boolean) {
+export async function postNewTodo(
+  todoText: string,
+  isCompleted: boolean,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      todoApiURl,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the postNewTodo Function"
-      );
-    }
-
-    const response = await fetch(todoApiURl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ todoText, isCompleted }),
       },
-
-      body: JSON.stringify({ todoText, isCompleted }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -74,26 +78,24 @@ export async function postNewTodo(todoText: string, isCompleted: boolean) {
 
 export async function updateTodoToggleCheckmark(
   todoId: string,
-  isCompleted: boolean
+  isCompleted: boolean,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      `${todoApiURl}${todoId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateTodoCheckmark Function"
-      );
-    }
-
-    const response = await fetch(`${todoApiURl}${todoId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ isCompleted }),
       },
-
-      body: JSON.stringify({ isCompleted }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -111,25 +113,26 @@ export async function updateTodoToggleCheckmark(
   }
 }
 
-export async function updateTodoText(todoId: string, todoText: string) {
+export async function updateTodoText(
+  todoId: string,
+  todoText: string,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      `${todoApiURl}${todoId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateTodoText Function"
-      );
-    }
-
-    const response = await fetch(`${todoApiURl}${todoId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ todoText }),
       },
-
-      body: JSON.stringify({ todoText }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -147,23 +150,23 @@ export async function updateTodoText(todoId: string, todoText: string) {
   }
 }
 
-export async function deleteTodo(toddoId: string) {
+export async function deleteTodo(
+  toddoId: string,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
-
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the deletedTodo function"
-      );
-    }
-
-    const response = await fetch(`${todoApiURl}${toddoId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetchWrapper(
+      `${todoApiURl}${toddoId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 

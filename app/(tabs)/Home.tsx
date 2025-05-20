@@ -14,19 +14,29 @@ import {
   handleDeleteTodo,
 } from "@/helper_functions/todoHelpers";
 import { useTodos } from "../../contexts/todo.context";
+import { useAuth } from "../../contexts/auth.context";
 
 export default function Home() {
   const { todos, setTodos } = useTodos();
   const [errorMessage, setErrorMessage] = useState("");
   const originalTodoText = useRef("");
 
-  function renderRightActions(todoId: string) {
+  const { accessToken, setAccessToken } = useAuth();
+
+  function renderRightActions(todoToBeDeleted: Todo) {
     return (
       <View className="flex-row bg-yellow-600 ">
         <Pressable
           className="p-1 justify-center rounded"
           onPress={() =>
-            handleDeleteTodo(todoId, todos, setTodos, setErrorMessage)
+            handleDeleteTodo(
+              todoToBeDeleted,
+              todos,
+              setTodos,
+              setErrorMessage,
+              accessToken,
+              setAccessToken
+            )
           }
         >
           <Feather name="x" size={24} color="white" />
@@ -36,11 +46,11 @@ export default function Home() {
   }
 
   useEffect(() => {
-    handleFetchTodos(setTodos, setErrorMessage);
+    handleFetchTodos(setTodos, setErrorMessage, accessToken, setAccessToken);
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 relative bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <FlatList
         data={todos}
         keyExtractor={(item) => item._id}
@@ -48,7 +58,7 @@ export default function Home() {
         contentContainerStyle={{ paddingHorizontal: 16 }}
         renderItem={({ item }) => (
           <ReanimatedSwipeable
-            renderRightActions={() => renderRightActions(item._id)}
+            renderRightActions={() => renderRightActions(item)}
           >
             <View className="flex-row items-center justify-center rounded">
               <Pressable
@@ -57,7 +67,9 @@ export default function Home() {
                     item._id,
                     item.isCompleted,
                     setTodos,
-                    setErrorMessage
+                    setErrorMessage,
+                    accessToken,
+                    setAccessToken
                   )
                 }
                 className={`w-8 h-8 rounded-full mr-3 border items-center justify-center
@@ -89,7 +101,10 @@ export default function Home() {
                     item,
                     originalTodoText,
                     setTodos,
-                    setErrorMessage
+                    setErrorMessage,
+                    accessToken,
+                    setAccessToken,
+                    todos
                   );
                 }}
               />
@@ -98,12 +113,14 @@ export default function Home() {
         )}
       />
 
-      <Pressable
-        className="absolute bottom-6 right-6 w-12 h-12 bg-blue-600 rounded-full items-center justify-center"
-        onPress={() => handleAddBlankTodo(setTodos)}
-      >
-        <AntDesign name="plus" size={24} color="white" />
-      </Pressable>
+      <View className="items-end mr-6 mt-6">
+        <Pressable
+          className="w-14 h-14 bg-blue-600 rounded-full items-center justify-center"
+          onPress={() => handleAddBlankTodo(todos, setTodos)}
+        >
+          <AntDesign name="plus" size={24} color="white" />
+        </Pressable>
+      </View>
       {/* 4. Error message */}
       {errorMessage ? (
         <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>

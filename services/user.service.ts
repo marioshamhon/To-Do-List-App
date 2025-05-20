@@ -1,28 +1,29 @@
-import { getItem } from "../securestore/auth.storage";
+import { Dispatch, SetStateAction } from "react";
+import fetchWrapper from "./fetchWrapper";
 
 const userApiUrl = "http://192.168.1.6:5000/api/user/";
 const verifyPasswordApiUrl =
   "http://192.168.1.6:5000/api/user/verify-password/";
 
-const changePasswordApiUrl = "http://192.168.1.6:5000/api/user/password/";
+const changePasswordApiUrl =
+  "http://192.168.1.6:5000/api/user/change-password/";
 
-export async function fetchUser() {
+export async function fetchUser(
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
-
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateUserName Function"
-      );
-    }
-
-    const response = await fetch(userApiUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetchWrapper(
+      userApiUrl,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -40,25 +41,25 @@ export async function fetchUser() {
   }
 }
 
-export async function updateUserName(name: string) {
+export async function updateUserName(
+  name: string,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      userApiUrl,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateUserName Function"
-      );
-    }
-
-    const response = await fetch(userApiUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ name }),
       },
-
-      body: JSON.stringify({ name }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -76,25 +77,25 @@ export async function updateUserName(name: string) {
   }
 }
 
-export async function updateUserEmail(email: string) {
+export async function updateUserEmail(
+  email: string,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      userApiUrl,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateUserEmail Function"
-      );
-    }
-
-    const response = await fetch(userApiUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ email }),
       },
-
-      body: JSON.stringify({ email }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -112,25 +113,25 @@ export async function updateUserEmail(email: string) {
   }
 }
 
-export async function verifyUserPassword(password: string) {
+export async function verifyUserPassword(
+  password: string,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      verifyPasswordApiUrl,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateUserEmail Function"
-      );
-    }
-
-    const response = await fetch(verifyPasswordApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ password }),
       },
-
-      body: JSON.stringify({ password }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
@@ -148,25 +149,25 @@ export async function verifyUserPassword(password: string) {
   }
 }
 
-export async function updateUserPassword(password: string) {
+export async function updateUserPassword(
+  password: string,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const token = await getItem("token");
+    const response = await fetchWrapper(
+      changePasswordApiUrl,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    if (!token) {
-      throw new Error(
-        "Token not found this is comming from the updateUserEmail Function"
-      );
-    }
-
-    const response = await fetch(changePasswordApiUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        body: JSON.stringify({ password }),
       },
-
-      body: JSON.stringify({ password }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 

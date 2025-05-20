@@ -22,7 +22,7 @@ export async function registerUser(
     const responseData = await response.json();
 
     if (response.ok) {
-      await saveItem("token", responseData.data.token);
+      await saveItem("refreshToken", responseData.data.refreshToken);
 
       return { success: true, data: responseData.data };
     } else {
@@ -51,7 +51,7 @@ export async function loginUser(email: string, password: string) {
     const responseData = await response.json();
 
     if (response.ok) {
-      await saveItem("token", responseData.data.token);
+      await saveItem("refreshToken", responseData.data.refreshToken);
       return { success: true, data: responseData.data };
     } else {
       return {

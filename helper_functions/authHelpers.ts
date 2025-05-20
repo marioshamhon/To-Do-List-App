@@ -11,7 +11,8 @@ export async function handleRegister(
   password: string,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   setPassword: Dispatch<SetStateAction<string>>,
-  setUser: (user: User) => void
+  setUser: (user: User) => void,
+  setAcessToken: Dispatch<SetStateAction<string>>
 ) {
   const minimumPasswordLength = 6;
 
@@ -48,7 +49,8 @@ export async function handleRegister(
 
   if (result.success) {
     const [newUserFromDB] = result.data.user;
-    await setUser(newUserFromDB);
+    setUser(newUserFromDB);
+    setAcessToken(result.data.accessToken);
 
     router.push("/Home");
   } else {
@@ -62,7 +64,8 @@ export async function handleLogin(
   password: string,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   setPassword: Dispatch<SetStateAction<string>>,
-  setUser: (user: User) => void
+  setUser: (user: User) => void,
+  setAcessToken: Dispatch<SetStateAction<string>>
 ) {
   setErrorMessage(""); // Clear previous error
 
@@ -84,7 +87,9 @@ export async function handleLogin(
   const result = await loginUser(email, password);
 
   if (result.success) {
-    await setUser(result.data.user);
+    setUser(result.data.user);
+    setAcessToken(result.data.accessToken);
+
     router.push("/Home");
   } else {
     setErrorMessage(result.message);

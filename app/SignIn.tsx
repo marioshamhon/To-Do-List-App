@@ -11,7 +11,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { setUser } = useAuth();
+  const { setUser, setAccessToken } = useAuth();
 
   useClearInputs(setEmail, setPassword, setErrorMessage);
 
@@ -50,7 +50,14 @@ export default function SignIn() {
       <Pressable
         className="bg-blue-600 rounded py-3 mb-4"
         onPress={() =>
-          handleLogin(email, password, setErrorMessage, setPassword, setUser)
+          handleLogin(
+            email,
+            password,
+            setErrorMessage,
+            setPassword,
+            setUser,
+            setAccessToken
+          )
         }
       >
         <Text className="text-center text-white font-semibold">Log In</Text>

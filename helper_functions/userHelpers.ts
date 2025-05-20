@@ -9,8 +9,12 @@ import {
 
 import { User } from "../contexts/auth.context";
 
-export async function handleFetchUser(setUser: (user: User) => void) {
-  const result = await fetchUser();
+export async function handleFetchUser(
+  setUser: (user: User) => void,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
+  const result = await fetchUser(accessToken, setAccessToken);
 
   if (!result.success) {
     console.error("Failed to fetch user object from database");
@@ -27,12 +31,28 @@ export function handleSaveButtonPressed(
   label: string,
   setUser: (user: User) => void,
   setErrorMessage: Dispatch<SetStateAction<string>>,
-  setShowModal: Dispatch<SetStateAction<boolean>>
+  setShowModal: Dispatch<SetStateAction<boolean>>,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   if (label === "Name") {
-    handleUpdateUserName(nameOrEmail, setUser, setErrorMessage, setShowModal);
+    handleUpdateUserName(
+      nameOrEmail,
+      setUser,
+      setErrorMessage,
+      setShowModal,
+      accessToken,
+      setAccessToken
+    );
   } else if (label === "Email") {
-    handleUpdateUserEmail(nameOrEmail, setUser, setErrorMessage, setShowModal);
+    handleUpdateUserEmail(
+      nameOrEmail,
+      setUser,
+      setErrorMessage,
+      setShowModal,
+      accessToken,
+      setAccessToken
+    );
   }
 }
 
@@ -40,14 +60,16 @@ async function handleUpdateUserName(
   name: string,
   setUser: (user: User) => void,
   setErrorMessage: Dispatch<SetStateAction<string>>,
-  setShowModal: Dispatch<SetStateAction<boolean>>
+  setShowModal: Dispatch<SetStateAction<boolean>>,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   if (name === "") {
     setErrorMessage("Name field blank Please enter a name");
     return;
   }
 
-  const result = await updateUserName(name);
+  const result = await updateUserName(name, accessToken, setAccessToken);
 
   if (!result.success) {
     setErrorMessage(result.message);
@@ -65,14 +87,16 @@ async function handleUpdateUserEmail(
   email: string,
   setUser: (user: User) => void,
   setErrorMessage: Dispatch<SetStateAction<string>>,
-  setShowModal: Dispatch<SetStateAction<boolean>>
+  setShowModal: Dispatch<SetStateAction<boolean>>,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   if (email === "") {
     setErrorMessage("Email field blank Please enter a email");
     return;
   }
 
-  const result = await updateUserEmail(email);
+  const result = await updateUserEmail(email, accessToken, setAccessToken);
 
   if (!result.success) {
     setErrorMessage(result.message);
@@ -90,7 +114,9 @@ export async function handleVerifyPassword(
   password: string,
   setStep: Dispatch<SetStateAction<string>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
-  setVerifyPassword: Dispatch<SetStateAction<string>>
+  setVerifyPassword: Dispatch<SetStateAction<string>>,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   setErrorMessage("");
 
@@ -99,7 +125,11 @@ export async function handleVerifyPassword(
     return;
   }
 
-  const result = await verifyUserPassword(password);
+  const result = await verifyUserPassword(
+    password,
+    accessToken,
+    setAccessToken
+  );
 
   if (!result.success) {
     setErrorMessage(result.message);
@@ -117,7 +147,9 @@ export async function handleUpdateUserPassword(
   setPassword: Dispatch<SetStateAction<string>>,
   setConfirmPassword: Dispatch<SetStateAction<string>>,
   setStep: Dispatch<SetStateAction<string>>,
-  setErrorMessage: Dispatch<SetStateAction<string>>
+  setErrorMessage: Dispatch<SetStateAction<string>>,
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   const minimumPasswordLength = 6;
 
@@ -155,7 +187,11 @@ export async function handleUpdateUserPassword(
     return;
   }
 
-  const result = await updateUserPassword(password);
+  const result = await updateUserPassword(
+    password,
+    accessToken,
+    setAccessToken
+  );
 
   if (!result.success) {
     setErrorMessage(result.message);

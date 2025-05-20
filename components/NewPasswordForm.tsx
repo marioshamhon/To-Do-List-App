@@ -3,6 +3,7 @@ import { Text, TextInput, Pressable } from "react-native";
 import colors from "tailwindcss/colors";
 import { handleUpdateUserPassword } from "../helper_functions/userHelpers";
 import { ChangePasswordProps } from "./ChangePassword";
+import { useAuth } from "../contexts/auth.context";
 
 export default function NewPasswordForm({
   setStep,
@@ -11,6 +12,8 @@ export default function NewPasswordForm({
   const [password, setPassword] = useState("");
 
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const { accessToken, setAccessToken } = useAuth();
 
   return (
     <>
@@ -42,7 +45,9 @@ export default function NewPasswordForm({
             setPassword,
             setConfirmPassword,
             setStep,
-            setErrorMessage
+            setErrorMessage,
+            accessToken,
+            setAccessToken
           )
         }
       >

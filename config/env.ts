@@ -12,5 +12,11 @@ function getEnv(name: string): string {
 
 export const PORT = getEnv("PORT");
 export const DBConnectionURL = getEnv("DBConnectionURL");
-export const JWT_SECRET = getEnv("JWT_SECRET");
-export const JWT_EXPIRES_IN = getEnv("JWT_EXPIRES_IN");
+export const JWT_SECRET_REFRESH_TOKEN = getEnv("JWT_SECRET_REFRESH_TOKEN");
+export const JWT_EXPIRES_IN_REFRESH_TOKEN = getEnv(
+  "JWT_EXPIRES_IN_REFRESH_TOKEN"
+);
+export const JWT_SECRET_ACCESS_TOKEN = getEnv("JWT_SECRET_ACCESS_TOKEN");
+export const JWT_EXPIRES_IN_ACCESS_TOKEN = getEnv(
+  "JWT_EXPIRES_IN_ACCESS_TOKEN"
+);

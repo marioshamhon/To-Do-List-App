@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env";
+import {
+  JWT_SECRET_REFRESH_TOKEN,
+  JWT_EXPIRES_IN_REFRESH_TOKEN,
+  JWT_SECRET_ACCESS_TOKEN,
+  JWT_EXPIRES_IN_ACCESS_TOKEN,
+} from "../config/env";
 import CustomError from "../utils/CustomError";
 import { NextFunction, Request, Response } from "express";
 
@@ -36,13 +41,37 @@ export async function signUp(req: Request, res: Response, next: NextFunction) {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = await User.create(
-      [{ name, email, password: hashedPassword }],
+      [
+        {
+          name,
+          email,
+          password: hashedPassword,
+          refreshToken: "tempRequestToken",
+        },
+      ],
       { session }
     );
 
-    const token = jwt.sign({ userId: newUser[0]._id }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
-    } as jwt.SignOptions);
+    const refreshToken = jwt.sign(
+      { userId: newUser[0]._id },
+      JWT_SECRET_REFRESH_TOKEN,
+      {
+        expiresIn: JWT_EXPIRES_IN_REFRESH_TOKEN,
+      } as jwt.SignOptions
+    );
+
+    const accessToken = jwt.sign(
+      { userId: newUser[0]._id },
+      JWT_SECRET_ACCESS_TOKEN,
+      {
+        expiresIn: JWT_EXPIRES_IN_ACCESS_TOKEN,
+      } as jwt.SignOptions
+    );
+
+    const hashedRefreshedToken = await bcrypt.hash(refreshToken, salt);
+
+    newUser[0].refreshToken = hashedRefreshedToken;
+    await newUser[0].save();
 
     await session.commitTransaction();
 
@@ -52,7 +81,8 @@ export async function signUp(req: Request, res: Response, next: NextFunction) {
       success: true,
       message: "User created successfully",
       data: {
-        token,
+        refreshToken,
+        accessToken,
         user: newUser,
       },
     });
@@ -83,17 +113,97 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
       throw error;
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
-    } as jwt.SignOptions);
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      JWT_SECRET_REFRESH_TOKEN,
+      {
+        expiresIn: JWT_EXPIRES_IN_REFRESH_TOKEN,
+      } as jwt.SignOptions
+    );
+
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      JWT_SECRET_ACCESS_TOKEN,
+      {
+        expiresIn: JWT_EXPIRES_IN_ACCESS_TOKEN,
+      } as jwt.SignOptions
+    );
+
+    const salt = await bcrypt.genSalt(10);
+
+    const hashedRefreshedToken = await bcrypt.hash(refreshToken, salt);
+
+    user.refreshToken = hashedRefreshedToken;
+
+    await user.save();
 
     res.status(200).json({
       success: true,
-      message: "User signed in in successfully",
+      message: "User signed in successfully",
       data: {
-        token,
+        refreshToken,
+        accessToken,
         user,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function refreshToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    console.log("refresh token route hit");
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      const error = new CustomError("refresh token undefined");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const decodedInformation = jwt.verify(
+      refreshToken,
+      JWT_SECRET_REFRESH_TOKEN
+    ) as { userId: string };
+
+    const userId = decodedInformation.userId;
+
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      const error = new CustomError("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const isRefreshTokenValid = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken
+    );
+
+    if (!isRefreshTokenValid) {
+      const error = new CustomError("Refresh token invalid");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      JWT_SECRET_ACCESS_TOKEN,
+      {
+        expiresIn: JWT_EXPIRES_IN_ACCESS_TOKEN,
+      } as jwt.SignOptions
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "New access token created successfully",
+      accessToken,
     });
   } catch (error) {
     next(error);

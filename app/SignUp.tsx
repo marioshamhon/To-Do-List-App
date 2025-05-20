@@ -12,7 +12,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { setUser } = useAuth();
+  const { setUser, setAccessToken } = useAuth();
 
   useClearInputs(setName, setEmail, setPassword, setErrorMessage);
 
@@ -66,7 +66,8 @@ export default function SignUp() {
             password,
             setErrorMessage,
             setPassword,
-            setUser
+            setUser,
+            setAccessToken
           )
         }
       >
