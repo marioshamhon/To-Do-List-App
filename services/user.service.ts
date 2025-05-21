@@ -12,6 +12,11 @@ export async function fetchUser(
   accessToken: string,
   setAccessToken: Dispatch<SetStateAction<string>>
 ) {
+  if (!accessToken) {
+    console.log("error on hot save");
+    console.log(accessToken);
+    return;
+  }
   try {
     const response = await fetchWrapper(
       userApiUrl,

@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-import { getItem } from "../securestore/auth.storage";
 
 import fetchWrapper from "./fetchWrapper";
 import { access } from "fs";

@@ -1,7 +1,6 @@
 import { getItem } from "expo-secure-store";
 import { Dispatch, SetStateAction } from "react";
-
-const refreshTokenApiURl = "http://192.168.1.6:5000/api/auth/refresh-token";
+import { refreshAccessToken } from "./auth.service";
 
 export default async function fetchWrapper(
   url: string,
@@ -23,21 +22,14 @@ export default async function fetchWrapper(
       return response;
     }
 
-    const responseFromRefreshTokenEndpoint = await fetch(refreshTokenApiURl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refreshToken }),
-    });
+    const result = await refreshAccessToken(refreshToken);
 
-    const responseData = await responseFromRefreshTokenEndpoint.json();
-
-    if (!responseFromRefreshTokenEndpoint.ok || !responseData.accessToken) {
+    if (!result.success) {
+      console.log(result.message);
       return response;
     }
 
-    const newAccessToken = responseData.accessToken;
+    const newAccessToken = result.accessToken;
 
     setAccessToken(newAccessToken);
 

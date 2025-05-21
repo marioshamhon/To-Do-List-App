@@ -51,6 +51,13 @@ export default function Home() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {todos.length === 0 && (
+        <View className="absolute inset-0 justify-center items-center">
+          <Text className="text-2xl font-bold text-center">
+            You have no todo items. Click the + button to create one!
+          </Text>
+        </View>
+      )}
       <FlatList
         data={todos}
         keyExtractor={(item) => item._id}

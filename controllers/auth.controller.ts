@@ -157,7 +157,6 @@ export async function refreshToken(
   next: NextFunction
 ) {
   try {
-    console.log("refresh token route hit");
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
