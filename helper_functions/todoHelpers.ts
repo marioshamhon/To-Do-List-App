@@ -109,7 +109,8 @@ export async function handleFetchTodos(
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   accessToken: string,
-  setAccessToken: Dispatch<SetStateAction<string>>
+  setAccessToken: Dispatch<SetStateAction<string>>,
+  setIsTodosLoading: Dispatch<SetStateAction<boolean>>
 ): Promise<void> {
   const result = await fetchTodos(accessToken, setAccessToken);
 
@@ -126,6 +127,7 @@ export async function handleFetchTodos(
   }));
 
   setTodos(todosFromDbWithFlag);
+  setIsTodosLoading(false);
 }
 
 async function handlePostNewTodo(
