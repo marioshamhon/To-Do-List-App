@@ -9,11 +9,11 @@ import {
 import { handleFetchUser } from "../helper_functions/userHelpers";
 import type { ReactNode } from "react";
 import { getItem } from "expo-secure-store";
-import { refreshAccessToken } from "../services/auth.service";
+import { refreshAccessToken } from "../services/refresh.token.service";
 
 export interface AuthContextType {
   user: UserObjectWithoutPassword | null;
-  setUser: (user: User) => void;
+  setUser: (user: User | null) => void;
 
   accessToken: string;
   setAccessToken: Dispatch<SetStateAction<string>>;
@@ -51,7 +51,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState("");
   const [isLoading, setisLoading] = useState(true);
 
-  const setUser = (userWithPassword: User) => {
+  const setUser = (userWithPassword: User | null) => {
+    if (userWithPassword === null) {
+      setUserState(null);
+      return;
+    }
+
     const { password, ...safeUser } = userWithPassword;
     setUserState(safeUser as UserObjectWithoutPassword);
   };

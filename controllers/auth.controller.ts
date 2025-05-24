@@ -10,6 +10,7 @@ import {
 } from "../config/env";
 import CustomError from "../utils/CustomError";
 import { NextFunction, Request, Response } from "express";
+import { configureProps } from "react-native-reanimated/lib/typescript/ConfigHelper";
 
 export async function signUp(req: Request, res: Response, next: NextFunction) {
   const minimumPasswordLength = 6;
@@ -145,6 +146,41 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
         accessToken,
         user,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function signOut(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      const error = new CustomError("User ID invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const result = await User.updateOne(
+      { _id: userId },
+      { $unset: { refreshToken: "" } }
+    );
+
+    if (result.matchedCount === 0) {
+      const error = new CustomError("User Not Found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (result.modifiedCount === 0) {
+      console.log("No refresh token to remove. Refresh token already removed.");
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Refresh token removed successfully",
     });
   } catch (error) {
     next(error);

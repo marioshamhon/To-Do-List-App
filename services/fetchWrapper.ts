@@ -1,6 +1,6 @@
 import { getItem } from "expo-secure-store";
 import { Dispatch, SetStateAction } from "react";
-import { refreshAccessToken } from "./auth.service";
+import { refreshAccessToken } from "./refresh.token.service";
 
 export default async function fetchWrapper(
   url: string,

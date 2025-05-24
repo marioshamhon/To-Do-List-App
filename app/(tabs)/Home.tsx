@@ -153,7 +153,6 @@ export default function Home() {
         </Pressable>
       </View>
 
-      {/* 4. Error message */}
       {errorMessage ? (
         <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
       ) : null}

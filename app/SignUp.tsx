@@ -5,6 +5,7 @@ import colors from "tailwindcss/colors";
 import { useClearInputs } from "../hooks/useClearInputs";
 import { handleRegister } from "../helper_functions/authHelpers";
 import { useAuth } from "../contexts/auth.context";
+import { useRouter } from "expo-router";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -14,14 +15,14 @@ export default function SignUp() {
 
   const { setUser, setAccessToken } = useAuth();
 
+  const router = useRouter();
+
   useClearInputs(setName, setEmail, setPassword, setErrorMessage);
 
   return (
     <View className="flex-1 justify-center  px-4 bg-white">
-      {/* 1. Title */}
       <Text className="text-2xl font-bold mb-6 text-center">Sign Up</Text>
 
-      {/* 2. Name input */}
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-4"
         placeholder="Name"
@@ -30,7 +31,6 @@ export default function SignUp() {
         onChangeText={setName}
       />
 
-      {/* 3. Email input */}
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-4"
         placeholder="Email"
@@ -41,7 +41,6 @@ export default function SignUp() {
         onChangeText={setEmail}
       />
 
-      {/* 4. Password input */}
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-6"
         placeholder="Password"
@@ -51,12 +50,10 @@ export default function SignUp() {
         onChangeText={setPassword}
       />
 
-      {/* 5. Error message display */}
       {errorMessage ? (
         <Text className="text-red-500 text-center mb-4">{errorMessage}</Text>
       ) : null}
 
-      {/* 6. Sign Up button */}
       <Pressable
         className="bg-blue-600 rounded py-3 mb-4"
         onPress={() =>
@@ -67,7 +64,8 @@ export default function SignUp() {
             setErrorMessage,
             setPassword,
             setUser,
-            setAccessToken
+            setAccessToken,
+            router
           )
         }
       >

@@ -5,6 +5,7 @@ import colors from "tailwindcss/colors";
 import { useClearInputs } from "../hooks/useClearInputs";
 import { handleLogin } from "../helper_functions/authHelpers";
 import { useAuth } from "../contexts/auth.context";
+import { useRouter } from "expo-router";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -13,14 +14,14 @@ export default function SignIn() {
 
   const { setUser, setAccessToken } = useAuth();
 
+  const router = useRouter();
+
   useClearInputs(setEmail, setPassword, setErrorMessage);
 
   return (
     <View className="flex-1 justify-center  px-4 bg-white">
-      {/* 1. Title */}
       <Text className="text-2xl font-bold mb-6 text-center">Sign In</Text>
 
-      {/* 2. Email input */}
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-4"
         placeholder="Email"
@@ -31,7 +32,6 @@ export default function SignIn() {
         onChangeText={setEmail}
       />
 
-      {/* 3. Password input */}
       <TextInput
         className="border border-gray-300 rounded px-3 py-2 mb-6"
         placeholder="Password"
@@ -41,12 +41,10 @@ export default function SignIn() {
         onChangeText={setPassword}
       />
 
-      {/* 4. Error message */}
       {errorMessage ? (
         <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
       ) : null}
 
-      {/* 5. Login button */}
       <Pressable
         className="bg-blue-600 rounded py-3 mb-4"
         onPress={() =>
@@ -56,7 +54,8 @@ export default function SignIn() {
             setErrorMessage,
             setPassword,
             setUser,
-            setAccessToken
+            setAccessToken,
+            router
           )
         }
       >

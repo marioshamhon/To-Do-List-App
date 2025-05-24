@@ -1,10 +1,12 @@
+import { Dispatch, SetStateAction } from "react";
 import { saveItem } from "../securestore/auth.storage";
+import fetchWrapper from "./fetchWrapper";
 
 const signUpApiUrl = "http://192.168.1.6:5000/api/auth/sign-up";
 
 const signInApiUrl = "http://192.168.1.6:5000/api/auth/sign-in";
 
-const refreshTokenApiURl = "http://192.168.1.6:5000/api/auth/refresh-token";
+const signOutApiUrl = "http://192.168.1.6:5000/api/auth/sign-out";
 
 export async function registerUser(
   name: string,
@@ -67,28 +69,35 @@ export async function loginUser(email: string, password: string) {
   }
 }
 
-export async function refreshAccessToken(refreshToken: string) {
+export async function logOutUser(
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>
+) {
   try {
-    const response = await fetch(refreshTokenApiURl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetchWrapper(
+      signOutApiUrl,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-      body: JSON.stringify({ refreshToken }),
-    });
+      accessToken,
+      setAccessToken
+    );
 
     const responseData = await response.json();
 
     if (response.ok) {
-      return { success: true, accessToken: responseData.accessToken };
+      return { success: true };
     } else {
       return {
         success: false,
-        message: responseData.error || "Refresh token failed server side",
+        message: responseData.error || "logOutUser failed server side",
       };
     }
   } catch (error) {
-    console.error("Error in refreshToken function:", error);
+    console.error("Error in logOutUser function:", error);
     return { success: false, message: "Unexpected error occurred" };
   }
 }

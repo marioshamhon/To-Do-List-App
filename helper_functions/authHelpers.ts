@@ -1,9 +1,8 @@
 import { Dispatch, SetStateAction } from "react";
-import { useRouter } from "expo-router";
-import { registerUser, loginUser } from "../services/auth.service";
+import type { Router } from "expo-router";
+import { registerUser, loginUser, logOutUser } from "../services/auth.service";
 import { User } from "@/contexts/auth.context";
-
-const router = useRouter();
+import { deleteItem, getItem } from "../securestore/auth.storage";
 
 export async function handleRegister(
   name: string,
@@ -12,7 +11,8 @@ export async function handleRegister(
   setErrorMessage: Dispatch<SetStateAction<string>>,
   setPassword: Dispatch<SetStateAction<string>>,
   setUser: (user: User) => void,
-  setAcessToken: Dispatch<SetStateAction<string>>
+  setAcessToken: Dispatch<SetStateAction<string>>,
+  router: Router
 ) {
   const minimumPasswordLength = 6;
 
@@ -65,7 +65,8 @@ export async function handleLogin(
   setErrorMessage: Dispatch<SetStateAction<string>>,
   setPassword: Dispatch<SetStateAction<string>>,
   setUser: (user: User) => void,
-  setAcessToken: Dispatch<SetStateAction<string>>
+  setAcessToken: Dispatch<SetStateAction<string>>,
+  router: Router
 ) {
   setErrorMessage(""); // Clear previous error
 
@@ -95,4 +96,34 @@ export async function handleLogin(
     setErrorMessage(result.message);
     setPassword("");
   }
+}
+
+export async function handleSignOut(
+  accessToken: string,
+  setAccessToken: Dispatch<SetStateAction<string>>,
+  setUser: (user: User | null) => void,
+  setErrorMessage: Dispatch<SetStateAction<string>>,
+  router: Router
+) {
+  const result = await logOutUser(accessToken, setAccessToken);
+
+  if (!result.success) {
+    setErrorMessage(result.message);
+    return;
+  }
+
+  await deleteItem("refreshToken");
+
+  const refreshToken = await getItem("refreshToken");
+
+  if (refreshToken) {
+    console.log("Failed to delete refresh token from secure store");
+    return;
+  }
+
+  setUser(null);
+
+  setAccessToken("");
+
+  router.replace("/");
 }
