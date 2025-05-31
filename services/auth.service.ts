@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+import { Platform } from "react-native";
 import { saveItem } from "../securestore/auth.storage";
 import fetchWrapper from "./fetchWrapper";
 
@@ -18,15 +19,19 @@ export async function registerUser(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        platform: Platform.OS,
       },
 
+      credentials: "include",
       body: JSON.stringify({ name, email, password }),
     });
 
     const responseData = await response.json();
 
     if (response.ok) {
-      await saveItem("refreshToken", responseData.data.refreshToken);
+      if (Platform.OS !== "web") {
+        await saveItem("refreshToken", responseData.data.refreshToken);
+      }
 
       return { success: true, data: responseData.data };
     } else {
@@ -47,15 +52,19 @@ export async function loginUser(email: string, password: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        platform: Platform.OS,
       },
-
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
     const responseData = await response.json();
 
     if (response.ok) {
-      await saveItem("refreshToken", responseData.data.refreshToken);
+      if (Platform.OS !== "web") {
+        await saveItem("refreshToken", responseData.data.refreshToken);
+      }
+
       return { success: true, data: responseData.data };
     } else {
       return {
@@ -80,7 +89,9 @@ export async function logOutUser(
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          platform: Platform.OS,
         },
+        credentials: "include",
       },
       accessToken,
       setAccessToken

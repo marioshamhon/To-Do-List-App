@@ -10,7 +10,13 @@ import {
 } from "../config/env";
 import CustomError from "../utils/CustomError";
 import { NextFunction, Request, Response } from "express";
-import { configureProps } from "react-native-reanimated/lib/typescript/ConfigHelper";
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: false,
+  sameSite: "lax" as const,
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+};
 
 export async function signUp(req: Request, res: Response, next: NextFunction) {
   const minimumPasswordLength = 6;
@@ -78,11 +84,17 @@ export async function signUp(req: Request, res: Response, next: NextFunction) {
 
     session.endSession();
 
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      res.cookie("refreshToken", refreshToken, cookieOptions);
+    }
+
     res.status(201).json({
       success: true,
       message: "User created successfully",
       data: {
-        refreshToken,
+        ...(platform !== "web" ? { refreshToken } : {}),
         accessToken,
         user: newUser,
       },
@@ -138,11 +150,17 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
 
     await user.save();
 
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      res.cookie("refreshToken", refreshToken, cookieOptions);
+    }
+
     res.status(200).json({
       success: true,
       message: "User signed in successfully",
       data: {
-        refreshToken,
+        ...(platform !== "web" ? { refreshToken } : {}),
         accessToken,
         user,
       },
@@ -178,6 +196,16 @@ export async function signOut(req: Request, res: Response, next: NextFunction) {
       return;
     }
 
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: "Refresh token removed successfully",
@@ -193,7 +221,7 @@ export async function refreshToken(
   next: NextFunction
 ) {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.body.refreshToken || req.cookies.refreshToken;
 
     if (!refreshToken) {
       const error = new CustomError("refresh token undefined");
@@ -235,10 +263,45 @@ export async function refreshToken(
       } as jwt.SignOptions
     );
 
+    const newRefreshToken = jwt.sign(
+      { userId: user._id },
+      JWT_SECRET_REFRESH_TOKEN,
+      {
+        expiresIn: JWT_EXPIRES_IN_REFRESH_TOKEN,
+      } as jwt.SignOptions
+    );
+
+    const salt = await bcrypt.genSalt(10);
+
+    const hashedRefreshedToken = await bcrypt.hash(newRefreshToken, salt);
+
+    const updatedRefreshToken = { refreshToken: hashedRefreshedToken };
+
+    const userWithUpdatedRefreshToken = await User.findByIdAndUpdate(
+      userId,
+      updatedRefreshToken,
+      { new: true }
+    );
+
+    if (!userWithUpdatedRefreshToken) {
+      const error = new CustomError(
+        "Failed to get user with updated updated refresh token"
+      );
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      res.cookie("refreshToken", newRefreshToken, cookieOptions);
+    }
+
     res.status(200).json({
       success: true,
       message: "New access token created successfully",
       accessToken,
+      ...(req.body.refreshToken ? { newRefreshToken } : {}),
     });
   } catch (error) {
     next(error);

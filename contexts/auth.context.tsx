@@ -8,7 +8,6 @@ import {
 } from "react";
 import { handleFetchUser } from "../helper_functions/userHelpers";
 import type { ReactNode } from "react";
-import { getItem } from "expo-secure-store";
 import { refreshAccessToken } from "../services/refresh.token.service";
 
 export interface AuthContextType {
@@ -63,17 +62,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function validateUser() {
-      const refreshToken = getItem("refreshToken");
-
-      if (!refreshToken) {
-        setisLoading(false);
-        return;
-      }
-
-      const result = await refreshAccessToken(refreshToken);
+      const result = await refreshAccessToken();
 
       if (!result.success) {
-        console.log("error in validateUser function");
+        console.log(result.message);
         setisLoading(false);
         return;
       }

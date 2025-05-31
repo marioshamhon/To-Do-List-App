@@ -3,6 +3,7 @@ import type { Router } from "expo-router";
 import { registerUser, loginUser, logOutUser } from "../services/auth.service";
 import { User } from "@/contexts/auth.context";
 import { deleteItem, getItem } from "../securestore/auth.storage";
+import { Platform } from "react-native";
 
 export async function handleRegister(
   name: string,
@@ -112,13 +113,15 @@ export async function handleSignOut(
     return;
   }
 
-  await deleteItem("refreshToken");
+  if (Platform.OS !== "web") {
+    await deleteItem("refreshToken");
 
-  const refreshToken = await getItem("refreshToken");
+    const refreshToken = await getItem("refreshToken");
 
-  if (refreshToken) {
-    console.log("Failed to delete refresh token from secure store");
-    return;
+    if (refreshToken) {
+      console.log("Failed to delete refresh token from secure store");
+      return;
+    }
   }
 
   setUser(null);

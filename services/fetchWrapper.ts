@@ -1,4 +1,3 @@
-import { getItem } from "expo-secure-store";
 import { Dispatch, SetStateAction } from "react";
 import { refreshAccessToken } from "./refresh.token.service";
 
@@ -16,13 +15,7 @@ export default async function fetchWrapper(
   let response = await fetch(url, options);
 
   if (response.status === 401) {
-    const refreshToken = await getItem("refreshToken");
-
-    if (!refreshToken) {
-      return response;
-    }
-
-    const result = await refreshAccessToken(refreshToken);
+    const result = await refreshAccessToken();
 
     if (!result.success) {
       console.log(result.message);
