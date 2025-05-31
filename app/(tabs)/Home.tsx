@@ -28,7 +28,7 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
   const originalTodoText = useRef("");
 
-  const { accessToken, setAccessToken } = useAuth();
+  const { accessToken, setAccessToken, isLoading } = useAuth();
 
   const [isTodosLoading, setIsTodosLoading] = useState(true);
 
@@ -55,14 +55,18 @@ export default function Home() {
   }
 
   useEffect(() => {
-    handleFetchTodos(
-      setTodos,
-      setErrorMessage,
-      accessToken,
-      setAccessToken,
-      setIsTodosLoading
-    );
-  }, []);
+    if (!isLoading && accessToken) {
+      console.log("isLoading: ", isLoading);
+      console.log("AT:", accessToken);
+      handleFetchTodos(
+        setTodos,
+        setErrorMessage,
+        accessToken,
+        setAccessToken,
+        setIsTodosLoading
+      );
+    }
+  }, [isLoading]);
 
   if (isTodosLoading) {
     return (
