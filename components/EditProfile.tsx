@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
-import EditProfileRow from "../components/EditProfileRow";
-import { useAuth } from "@/contexts/auth.context";
+import EditProfileRow from "./EditProfileRow";
+import { useAuth } from "../contexts/auth.context";
 
 export default function EditProfile() {
   const { user } = useAuth();
