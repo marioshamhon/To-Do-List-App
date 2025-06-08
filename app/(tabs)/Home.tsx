@@ -22,15 +22,17 @@ import {
 } from "@/helper_functions/todoHelpers";
 import { useTodos } from "../../contexts/todo.context";
 import { useAuth } from "../../contexts/auth.context";
+import colors from "tailwindcss/colors";
+import EvilIcons from "@expo/vector-icons/EvilIcons";
+import cookieParser from "cookie-parser";
 
 export default function Home() {
   const { todos, setTodos } = useTodos();
   const [errorMessage, setErrorMessage] = useState("");
-  const originalTodoText = useRef("");
-
-  const { accessToken, setAccessToken, isLoading } = useAuth();
-
   const [isTodosLoading, setIsTodosLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const originalTodoText = useRef("");
+  const { accessToken, setAccessToken, isLoading } = useAuth();
 
   function renderRightActions(todoToBeDeleted: Todo) {
     return (
@@ -56,8 +58,6 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoading && accessToken) {
-      console.log("isLoading: ", isLoading);
-      console.log("AT:", accessToken);
       handleFetchTodos(
         setTodos,
         setErrorMessage,
@@ -76,9 +76,29 @@ export default function Home() {
     );
   }
 
+  const todosToShow =
+    searchQuery.length > 0
+      ? todos.filter((todo) =>
+          todo.todoText
+            .toLocaleLowerCase()
+            .includes(searchQuery.toLocaleLowerCase())
+        )
+      : todos;
+
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {todos.length === 0 ? (
+      <View className="flex-row border border-gray-300 rounded px-3 py-2 mb-4 mx-4">
+        <EvilIcons name="search" size={24} color={colors.blue[600]} />
+        <TextInput
+          className="flex-1"
+          placeholder="Search"
+          placeholderTextColor={colors.gray[400]}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        ></TextInput>
+      </View>
+
+      {todosToShow.length === 0 ? (
         <View className="flex-1 justify-center items-center">
           <Text className="text-2xl font-bold text-center">
             You have no todo items. Click the + button to create one!
@@ -86,7 +106,7 @@ export default function Home() {
         </View>
       ) : (
         <FlatList
-          data={todos}
+          data={todosToShow}
           keyExtractor={(item) => item._id}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
           contentContainerStyle={{ paddingHorizontal: 16 }}
