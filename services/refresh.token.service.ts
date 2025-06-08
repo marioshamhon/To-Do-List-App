@@ -21,9 +21,10 @@ export async function refreshAccessToken() {
         "Content-Type": "application/json",
         platform: Platform.OS,
       },
-      body:
-        Platform.OS !== "web" ? JSON.stringify({ refreshToken }) : undefined,
-      credentials: Platform.OS === "web" ? "include" : undefined,
+      ...(Platform.OS === "web" ? { credentials: "include" } : {}),
+      ...(Platform.OS !== "web"
+        ? { body: JSON.stringify({ refreshToken }) }
+        : {}),
     });
 
     const responseData = await response.json();

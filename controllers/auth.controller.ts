@@ -53,7 +53,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction) {
           name,
           email,
           password: hashedPassword,
-          refreshToken: "tempRequestToken",
+          refreshToken: [],
         },
       ],
       { session }
@@ -77,7 +77,7 @@ export async function signUp(req: Request, res: Response, next: NextFunction) {
 
     const hashedRefreshedToken = await bcrypt.hash(refreshToken, salt);
 
-    newUser[0].refreshToken = hashedRefreshedToken;
+    newUser[0].refreshToken.push(hashedRefreshedToken);
     await newUser[0].save();
 
     await session.commitTransaction();
@@ -146,7 +146,7 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
 
     const hashedRefreshedToken = await bcrypt.hash(refreshToken, salt);
 
-    user.refreshToken = hashedRefreshedToken;
+    user.refreshToken.push(hashedRefreshedToken);
 
     await user.save();
 
@@ -172,6 +172,22 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
 
 export async function signOut(req: Request, res: Response, next: NextFunction) {
   try {
+    let refreshToken = "";
+
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      refreshToken = req.cookies.refreshToken;
+    } else if (platform !== "web") {
+      refreshToken = req.body.refreshToken;
+    }
+
+    if (!refreshToken) {
+      const error = new CustomError("refresh token undefined");
+      error.statusCode = 404;
+      throw error;
+    }
+
     const userId = req.userId;
 
     if (!userId) {
@@ -180,30 +196,37 @@ export async function signOut(req: Request, res: Response, next: NextFunction) {
       throw error;
     }
 
-    const result = await User.updateOne(
-      { _id: userId },
-      { $unset: { refreshToken: "" } }
-    );
+    const user = await User.findOne({ _id: userId });
 
-    if (result.matchedCount === 0) {
-      const error = new CustomError("User Not Found");
+    if (!user) {
+      const error = new CustomError("User not found");
       error.statusCode = 404;
       throw error;
     }
 
-    if (result.modifiedCount === 0) {
-      console.log("No refresh token to remove. Refresh token already removed.");
-      return;
+    let matchIndex = -1;
+
+    for (let i = 0; i < user.refreshToken.length; i++) {
+      const hashedRefreshTokenFromDb = user.refreshToken[i];
+
+      if (await bcrypt.compare(refreshToken, hashedRefreshTokenFromDb)) {
+        matchIndex = i;
+        break;
+      }
     }
 
-    const platform = req.headers.platform;
+    if (matchIndex < 0) {
+      const error = new CustomError("Refresh token not found");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    user.refreshToken.splice(matchIndex, 1);
+
+    await user.save();
 
     if (platform === "web") {
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-      });
+      res.clearCookie("refreshToken", cookieOptions);
     }
 
     res.status(200).json({
@@ -221,7 +244,19 @@ export async function refreshToken(
   next: NextFunction
 ) {
   try {
-    const refreshToken = req.body.refreshToken || req.cookies.refreshToken;
+    let refreshToken = "";
+
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      refreshToken = req.cookies.refreshToken;
+      console.log(refreshToken);
+    } else if (platform !== "web") {
+      refreshToken = req.body.refreshToken;
+      console.log(refreshToken);
+    }
+
+    console.log("refresh token route");
 
     if (!refreshToken) {
       const error = new CustomError("refresh token undefined");
@@ -236,6 +271,12 @@ export async function refreshToken(
 
     const userId = decodedInformation.userId;
 
+    if (!userId) {
+      const error = new CustomError("User ID invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
@@ -244,16 +285,24 @@ export async function refreshToken(
       throw error;
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(
-      refreshToken,
-      user.refreshToken
-    );
+    let matchIndex = -1;
 
-    if (!isRefreshTokenValid) {
-      const error = new CustomError("Refresh token invalid");
+    for (let i = 0; i < user.refreshToken.length; i++) {
+      const hashedRefreshTokenFromDb = user.refreshToken[i];
+
+      if (await bcrypt.compare(refreshToken, hashedRefreshTokenFromDb)) {
+        matchIndex = i;
+        break;
+      }
+    }
+
+    if (matchIndex < 0) {
+      const error = new CustomError("Refresh token not found");
       error.statusCode = 401;
       throw error;
     }
+
+    user.refreshToken.splice(matchIndex, 1);
 
     const accessToken = jwt.sign(
       { userId: user._id },
@@ -275,23 +324,9 @@ export async function refreshToken(
 
     const hashedRefreshedToken = await bcrypt.hash(newRefreshToken, salt);
 
-    const updatedRefreshToken = { refreshToken: hashedRefreshedToken };
+    user.refreshToken.push(hashedRefreshedToken);
 
-    const userWithUpdatedRefreshToken = await User.findByIdAndUpdate(
-      userId,
-      updatedRefreshToken,
-      { new: true }
-    );
-
-    if (!userWithUpdatedRefreshToken) {
-      const error = new CustomError(
-        "Failed to get user with updated updated refresh token"
-      );
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const platform = req.headers.platform;
+    await user.save();
 
     if (platform === "web") {
       res.cookie("refreshToken", newRefreshToken, cookieOptions);
@@ -302,6 +337,79 @@ export async function refreshToken(
       message: "New access token created successfully",
       accessToken,
       ...(req.body.refreshToken ? { newRefreshToken } : {}),
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function validateRefreshToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    let refreshToken = "";
+
+    const platform = req.headers.platform;
+
+    if (platform === "web") {
+      refreshToken = req.cookies.refreshToken;
+      console.log(refreshToken);
+    } else if (platform !== "web") {
+      refreshToken = req.body.refreshToken;
+      console.log(refreshToken);
+    }
+
+    if (!refreshToken) {
+      const error = new CustomError("refresh token undefined");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const decodedInformation = jwt.verify(
+      refreshToken,
+      JWT_SECRET_REFRESH_TOKEN
+    ) as { userId: string };
+
+    const userId = decodedInformation.userId;
+
+    if (!userId) {
+      const error = new CustomError("User ID invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      const error = new CustomError("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    let matchIndex = -1;
+
+    for (let i = 0; i < user.refreshToken.length; i++) {
+      const hashedRefreshTokenFromDb = user.refreshToken[i];
+
+      if (await bcrypt.compare(refreshToken, hashedRefreshTokenFromDb)) {
+        matchIndex = i;
+        break;
+      }
+    }
+
+    if (matchIndex < 0) {
+      const error = new CustomError("Refresh token not found");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    console.log("validate refresh token route");
+
+    res.status(200).json({
+      success: true,
+      message: "Refresh token validated successfully",
     });
   } catch (error) {
     next(error);

@@ -1,20 +1,11 @@
-import { useEffect } from "react";
-import { Text, View, Pressable } from "react-native";
+import { Text, View, Pressable, Platform } from "react-native";
 import { useRouter } from "expo-router";
-import { useAuth } from "../contexts/auth.context";
+import { useAuthRedirect } from "../hooks/useAuthRedirect";
 
 export default function Index() {
+  const { isAuthenticated, isLoading, errorMessage } = useAuthRedirect();
+
   const router = useRouter();
-
-  const { user, accessToken, isLoading } = useAuth();
-
-  const isAuthenticated = !isLoading && accessToken && user;
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/Home");
-    }
-  }, [isAuthenticated]);
 
   if (isLoading || isAuthenticated) {
     return null;
@@ -37,6 +28,10 @@ export default function Index() {
       >
         <Text className="text-white text-lg text-center">Sign Up</Text>
       </Pressable>
+
+      {errorMessage ? (
+        <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
+      ) : null}
     </View>
   );
 }
