@@ -79,9 +79,7 @@ export default function Home() {
   const todosToShow =
     searchQuery.length > 0
       ? todos.filter((todo) =>
-          todo.todoText
-            .toLocaleLowerCase()
-            .includes(searchQuery.toLocaleLowerCase())
+          todo.todoText.toLowerCase().includes(searchQuery.toLowerCase())
         )
       : todos;
 
