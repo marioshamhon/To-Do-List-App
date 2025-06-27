@@ -5,27 +5,42 @@ import colors from "tailwindcss/colors";
 
 const _layout = () => {
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: "white",
+        tabBarInactiveTintColor: "white",
+        sceneStyle: { backgroundColor: "transparent" },
+        tabBarStyle: {
+          backgroundColor: "transparent",
+        },
+      }}
+    >
       <Tabs.Screen
         name="Home"
         options={{
-          title: "Home",
-          tabBarActiveTintColor: colors.blue[600],
-          tabBarIcon: () => (
-            <Ionicons name="home-outline" size={24} color="black" />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? "home" : "home-outline"}
+              size={24}
+              color="white"
+            />
           ),
-          headerShown: false,
         }}
       />
 
       <Tabs.Screen
         name="Profile"
         options={{
-          tabBarIcon: () => (
-            <Ionicons name="person-outline" size={24} color="black" />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name={focused ? "person" : "person-outline"}
+              size={24}
+              color="white"
+            />
           ),
           title: "Profile",
-          headerShown: false,
         }}
       />
     </Tabs>

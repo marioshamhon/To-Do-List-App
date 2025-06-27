@@ -17,7 +17,7 @@ export async function handleRegister(
 ) {
   const minimumPasswordLength = 6;
 
-  setErrorMessage(""); // Clear previous error
+  setErrorMessage("");
 
   if (name === "" && email === "" && password === "") {
     setErrorMessage("Please provide a name, email, and password");
@@ -69,7 +69,7 @@ export async function handleLogin(
   setAcessToken: Dispatch<SetStateAction<string>>,
   router: Router
 ) {
-  setErrorMessage(""); // Clear previous error
+  setErrorMessage("");
 
   if (email === "" && password === "") {
     setErrorMessage("Please provide an email and password");

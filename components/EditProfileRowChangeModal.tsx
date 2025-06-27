@@ -23,7 +23,7 @@ export default function EditProfileRowChangeModal({
   return (
     <Modal visible={showModal} animationType="slide" transparent>
       <View className="flex-1 justify-center items-center bg-black/50 px-4">
-        <View className="w-full bg-white rounded-lg p-5">
+        <View className="w-full bg-white rounded-3xl p-5">
           {errorMessage ? (
             <Text className="text-red-500 text-center mb-1">
               {errorMessage}
@@ -34,16 +34,16 @@ export default function EditProfileRowChangeModal({
           </Text>
 
           <TextInput
-            className="border border-gray-300 rounded p-2 mb-4"
+            className="border border-black rounded-2xl p-4 mb-4"
             placeholder={`Enter new ${label.toLowerCase()}`}
             placeholderTextColor={colors.gray[400]}
             onChangeText={setNameOrEmail}
             value={nameOrEmail}
           />
 
-          <View className="flex-row gap-x-1">
+          <View className="flex-row justify-center gap-x-1 ">
             <Pressable
-              className="bg-red-600 rounded p-2"
+              className="bg-purple-500 rounded-2xl p-4"
               onPress={() => setShowModal(false)}
             >
               <Text className="text-center text-white font-semibold">
@@ -52,7 +52,7 @@ export default function EditProfileRowChangeModal({
             </Pressable>
 
             <Pressable
-              className="bg-blue-600 rounded p-2"
+              className="bg-blue-600 rounded-2xl p-4"
               onPress={() =>
                 handleSaveButtonPressed(
                   nameOrEmail,

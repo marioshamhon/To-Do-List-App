@@ -250,13 +250,9 @@ export async function refreshToken(
 
     if (platform === "web") {
       refreshToken = req.cookies.refreshToken;
-      console.log(refreshToken);
     } else if (platform !== "web") {
       refreshToken = req.body.refreshToken;
-      console.log(refreshToken);
     }
-
-    console.log("refresh token route");
 
     if (!refreshToken) {
       const error = new CustomError("refresh token undefined");
@@ -298,7 +294,7 @@ export async function refreshToken(
 
     if (matchIndex < 0) {
       const error = new CustomError("Refresh token not found");
-      error.statusCode = 401;
+      error.statusCode = 404;
       throw error;
     }
 
@@ -338,80 +334,17 @@ export async function refreshToken(
       accessToken,
       ...(req.body.refreshToken ? { newRefreshToken } : {}),
     });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function validateRefreshToken(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    let refreshToken = "";
-
-    const platform = req.headers.platform;
-
-    if (platform === "web") {
-      refreshToken = req.cookies.refreshToken;
-      console.log(refreshToken);
-    } else if (platform !== "web") {
-      refreshToken = req.body.refreshToken;
-      console.log(refreshToken);
+  } catch (error: any) {
+    if (error.name === "TokenExpiredError") {
+      const customError = new CustomError("Refresh token has expired");
+      customError.statusCode = 401;
+      next(customError);
+    } else if (error.name === "JsonWebTokenError") {
+      const customError = new CustomError("Invalid refresh token");
+      customError.statusCode = 401;
+      next(customError);
+    } else {
+      next(error);
     }
-
-    if (!refreshToken) {
-      const error = new CustomError("refresh token undefined");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const decodedInformation = jwt.verify(
-      refreshToken,
-      JWT_SECRET_REFRESH_TOKEN
-    ) as { userId: string };
-
-    const userId = decodedInformation.userId;
-
-    if (!userId) {
-      const error = new CustomError("User ID invalid");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const user = await User.findOne({ _id: userId });
-
-    if (!user) {
-      const error = new CustomError("User not found");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    let matchIndex = -1;
-
-    for (let i = 0; i < user.refreshToken.length; i++) {
-      const hashedRefreshTokenFromDb = user.refreshToken[i];
-
-      if (await bcrypt.compare(refreshToken, hashedRefreshTokenFromDb)) {
-        matchIndex = i;
-        break;
-      }
-    }
-
-    if (matchIndex < 0) {
-      const error = new CustomError("Refresh token not found");
-      error.statusCode = 401;
-      throw error;
-    }
-
-    console.log("validate refresh token route");
-
-    res.status(200).json({
-      success: true,
-      message: "Refresh token validated successfully",
-    });
-  } catch (error) {
-    next(error);
   }
 }

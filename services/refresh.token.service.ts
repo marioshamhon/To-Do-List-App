@@ -39,6 +39,7 @@ export async function refreshAccessToken() {
       return {
         success: false,
         message: responseData.error || "Refresh token failed server side",
+        statusCode: response.status,
       };
     }
   } catch (error) {

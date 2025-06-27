@@ -29,8 +29,12 @@ export default function profile() {
 
   const { todos } = useTodos();
 
+  const userName = user?.name
+    ? user.name.charAt(0).toUpperCase() + user.name.slice(1)
+    : "";
+
   return (
-    <SafeAreaView className=" flex-1  bg-white ">
+    <SafeAreaView className="flex-1">
       {errorMessage ? (
         <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
       ) : null}
@@ -48,10 +52,24 @@ export default function profile() {
       >
         <Text>Sign out</Text>
       </Pressable>
-      <Text className=" text-center text-lg font-semibold mb-2">
-        {`Hello ${user?.name}, welcome to your profile.`}
-      </Text>
-      <Text className="text-center mb-4 font-semibold">{`you have ${todos.length} todos`}</Text>
+      <View className="flex-1 items-center justify-center">
+        <View className="flex-row items-center gap-x-3">
+          <View className="w-20 h-20 justify-center rounded-full border border-white">
+            <Text className="text-center text-white text-bold text-2xl">
+              {user?.name.charAt(0).toUpperCase()}{" "}
+            </Text>
+          </View>
+          <View>
+            <Text className="text-white">{userName}</Text>
+            <View className="flex-row gap-x-1">
+              <Text className="text-white">{user?.email}</Text>
+              <Text className="text-white">•</Text>
+
+              <Text className="text-white"> {todos.length} Todos</Text>
+            </View>
+          </View>
+        </View>
+      </View>
 
       <NavSideBar
         tabs={tabs}
@@ -61,7 +79,7 @@ export default function profile() {
 
       <View className="px-4 w-full flex-1 justify-center">
         {selectedTab === "" && (
-          <Text className="text-2xl font-bold text-center">
+          <Text className="text-2xl font-bold text-center text-white">
             Please Select a tab item
           </Text>
         )}

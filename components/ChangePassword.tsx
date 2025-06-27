@@ -8,6 +8,7 @@ import { SetTabProps } from "../app/(tabs)/Profile";
 export type ChangePasswordProps = {
   setStep: Dispatch<SetStateAction<string>>;
   setErrorMessage: Dispatch<SetStateAction<string>>;
+  errorMessage: string;
 };
 
 export default function ChangePassword({ setSelectedTab }: SetTabProps) {
@@ -16,18 +17,20 @@ export default function ChangePassword({ setSelectedTab }: SetTabProps) {
 
   return (
     <View>
-      {errorMessage ? (
-        <Text className="text-red-500 text-center mb-1">{errorMessage}</Text>
-      ) : null}
       {step === "verify" && (
         <VerifyPasswordForm
           setStep={setStep}
           setErrorMessage={setErrorMessage}
+          errorMessage={errorMessage}
         />
       )}
 
       {step === "update" && (
-        <NewPasswordForm setStep={setStep} setErrorMessage={setErrorMessage} />
+        <NewPasswordForm
+          setStep={setStep}
+          setErrorMessage={setErrorMessage}
+          errorMessage={errorMessage}
+        />
       )}
 
       {step === "success" && (

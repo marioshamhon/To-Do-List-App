@@ -3,6 +3,7 @@ import { PORT } from "./config/env";
 import authRouter from "./routes/auth.routes";
 import todoRouter from "./routes/todo.routes";
 import userRouter from "./routes/user.routes";
+import geminiRouter from "./routes/gemini.routes";
 import ConnectToDatabase from "./database/mongodb";
 import errorMiddleware from "./middlewares/error.middleware";
 import cors from "cors";
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter); // http://api/auth/sign-in or http://api/auth/sign-up
 app.use("/api/todos", todoRouter); // http://api/todos/ here we have four different methods
 app.use("/api/user", userRouter);
+app.use("/api/gemini", geminiRouter);
 
 app.use(errorMiddleware);
 

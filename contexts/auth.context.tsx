@@ -19,6 +19,8 @@ export interface AuthContextType {
 
   isLoading: boolean;
   setisLoading: Dispatch<SetStateAction<boolean>>;
+
+  isRefreshTokenExpired: Boolean;
 }
 
 interface AuthProviderProps {
@@ -43,12 +45,15 @@ const AuthContext = createContext<AuthContextType>({
 
   isLoading: true,
   setisLoading: (() => {}) as Dispatch<SetStateAction<boolean>>,
+
+  isRefreshTokenExpired: false,
 });
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUserState] = useState<UserObjectWithoutPassword | null>(null);
   const [accessToken, setAccessToken] = useState("");
   const [isLoading, setisLoading] = useState(true);
+  const [isRefreshTokenExpired, setIsRefreshTokenExpired] = useState(false);
 
   const setUser = (userWithPassword: User | null) => {
     if (userWithPassword === null) {
@@ -65,6 +70,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const result = await refreshAccessToken();
 
       if (!result.success) {
+        if (result.statusCode === 401) {
+          setIsRefreshTokenExpired(true);
+          setisLoading(false);
+          return;
+        }
+
         console.log(result.message);
         setisLoading(false);
         return;
@@ -91,6 +102,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAccessToken,
         isLoading,
         setisLoading,
+        isRefreshTokenExpired,
       }}
     >
       {children}

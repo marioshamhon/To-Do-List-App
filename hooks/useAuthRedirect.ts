@@ -2,12 +2,10 @@ import { useRouter, usePathname } from "expo-router";
 import { useEffect, useState, useRef } from "react";
 import { Platform } from "react-native";
 import { useAuth } from "../contexts/auth.context";
-import { validateRefreshToken } from "../services/auth.service";
 
 export function useAuthRedirect() {
-  const { user, accessToken, isLoading } = useAuth();
+  const { user, accessToken, isLoading, isRefreshTokenExpired } = useAuth();
   const router = useRouter();
-  const pathName = usePathname();
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -24,11 +22,13 @@ export function useAuthRedirect() {
     async function checkAuthAndRedirect() {
       if (isAuthenticated) {
         router.replace("/Home");
-      } else if (!isLoading && !isAuthenticated) {
-        const result = await validateRefreshToken();
-
-        if (result.success) {
-          setErrorMessage("Error unauthorized user. please log in again");
+      } else if (!isLoading) {
+        if (isRefreshTokenExpired) {
+          setErrorMessage("Error: Session expired. Please log in again");
+        } else if (accessToken && !user) {
+          setErrorMessage(
+            "Error: cannot automatically sign in user. Please Try again"
+          );
         }
       }
     }

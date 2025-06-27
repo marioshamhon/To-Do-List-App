@@ -12,13 +12,13 @@ export default function EditProfileRow({ label, value }: EditProfileRowProps) {
 
   return (
     <>
-      <View className="flex-row items-center bg-gray-500 p-4 mb-2 rounded shadow">
+      <View className="flex-row items-center rounded-3xl border border-white bg-white/20 p-4 mb-4">
         <View className="flex-1">
-          <Text className="text-sm text-gray-300">{`${label}:`}</Text>
+          <Text className="text-sm text-white">{`${label}:`}</Text>
           <Text className="text-base font-semibold">{value}</Text>
         </View>
         <Pressable
-          className="bg-blue-600 px-3 py-1 rounded"
+          className="bg-blue-600 rounded-2xl p-4"
           onPress={() => setShowModal(true)}
         >
           <Text className="text-white text-sm">Change</Text>

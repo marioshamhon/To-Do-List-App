@@ -20,3 +20,4 @@ export const JWT_SECRET_ACCESS_TOKEN = getEnv("JWT_SECRET_ACCESS_TOKEN");
 export const JWT_EXPIRES_IN_ACCESS_TOKEN = getEnv(
   "JWT_EXPIRES_IN_ACCESS_TOKEN"
 );
+export const GEMINI_API_KEY = getEnv("GEMINI_API_KEY");

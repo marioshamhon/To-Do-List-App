@@ -35,6 +35,8 @@ export function handleSaveButtonPressed(
   accessToken: string,
   setAccessToken: Dispatch<SetStateAction<string>>
 ) {
+  setErrorMessage("");
+
   if (label === "Name") {
     handleUpdateUserName(
       nameOrEmail,
@@ -65,7 +67,7 @@ async function handleUpdateUserName(
   setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   if (name === "") {
-    setErrorMessage("Name field blank Please enter a name");
+    setErrorMessage("Name field blank. Please enter a name");
     return;
   }
 
@@ -92,7 +94,7 @@ async function handleUpdateUserEmail(
   setAccessToken: Dispatch<SetStateAction<string>>
 ) {
   if (email === "") {
-    setErrorMessage("Email field blank Please enter a email");
+    setErrorMessage("Email field blank. Please enter a email");
     return;
   }
 

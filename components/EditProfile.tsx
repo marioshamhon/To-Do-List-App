@@ -7,7 +7,7 @@ export default function EditProfile() {
   const { user } = useAuth();
 
   return (
-    <View className="">
+    <View>
       <EditProfileRow label="Name" value={user?.name}></EditProfileRow>
       <EditProfileRow label="Email" value={user?.email}></EditProfileRow>
     </View>

@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
 import fetchWrapper from "./fetchWrapper";
-import { access } from "fs";
 
 const todoApiURl = "http://192.168.1.6:5000/api/todos/";
 
@@ -71,7 +70,10 @@ export async function postNewTodo(
     }
   } catch (error) {
     console.error("Error in postNewTodo function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return {
+      success: false,
+      message: "Error: Cannot add new todo item. Please try again",
+    };
   }
 }
 
@@ -108,7 +110,7 @@ export async function updateTodoToggleCheckmark(
     }
   } catch (error) {
     console.error("Error in updateTodoCheckmark function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return { success: false, message: "Error. Please try again." };
   }
 }
 
@@ -145,7 +147,7 @@ export async function updateTodoText(
     }
   } catch (error) {
     console.error("Error in updateTodoText function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return { success: false, message: "Error. Please try again." };
   }
 }
 
@@ -179,6 +181,9 @@ export async function deleteTodo(
     }
   } catch (error) {
     console.error("Error in deleteTodo function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return {
+      success: false,
+      message: "Error: Cannot delete todo. Please try again",
+    };
   }
 }

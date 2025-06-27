@@ -17,7 +17,8 @@ export type Todo = {
 
 export function handleAddBlankTodo(
   todosArray: Todo[],
-  setTodos: Dispatch<SetStateAction<Todo[]>>
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>
 ): void {
   const newTodo: Todo = {
     _id: Date.now().toString(),
@@ -26,7 +27,12 @@ export function handleAddBlankTodo(
     isNewTodo: true,
   };
 
-  handleDeleteBlankTodo("add button delete", todosArray, setTodos);
+  handleDeleteBlankTodo(
+    "add button delete",
+    todosArray,
+    setTodos,
+    setErrorMessage
+  );
 
   setTodos((prev) => [...prev, newTodo]);
 }
@@ -34,8 +40,11 @@ export function handleAddBlankTodo(
 function handleDeleteBlankTodo(
   todoId: string,
   todosArray: Todo[],
-  setTodos: Dispatch<SetStateAction<Todo[]>>
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessage: Dispatch<SetStateAction<string>>
 ) {
+  setErrorMessage("");
+
   const updatedTodoArray =
     todoId === "add button delete"
       ? todosArray.filter(
@@ -65,8 +74,11 @@ export function handleOnBlur(
   setErrorMessage: Dispatch<SetStateAction<string>>,
   accessToken: string,
   setAccessToken: Dispatch<SetStateAction<string>>,
-  todosArray: Todo[]
+  todosArray: Todo[],
+  isAiSuggestion: boolean
 ) {
+  setErrorMessage("");
+
   if (item.isNewTodo && item.todoText.trim() != "") {
     handlePostNewTodo(
       item._id,
@@ -75,22 +87,23 @@ export function handleOnBlur(
       setTodos,
       setErrorMessage,
       accessToken,
-      setAccessToken
+      setAccessToken,
+      isAiSuggestion
     );
   } else if (
     !item.isNewTodo &&
     item.todoText.trim() != originalTodoText.current.trim()
   ) {
     handleUpdateTodoText(
-      item._id,
-      item.todoText,
+      item,
       setTodos,
       setErrorMessage,
       accessToken,
-      setAccessToken
+      setAccessToken,
+      originalTodoText.current
     );
   } else if (item.isNewTodo && item.todoText.trim() === "") {
-    handleDeleteBlankTodo(item._id, todosArray, setTodos);
+    handleDeleteBlankTodo(item._id, todosArray, setTodos, setErrorMessage);
   }
 }
 
@@ -110,12 +123,15 @@ export async function handleFetchTodos(
   setErrorMessage: Dispatch<SetStateAction<string>>,
   accessToken: string,
   setAccessToken: Dispatch<SetStateAction<string>>,
-  setIsTodosLoading: Dispatch<SetStateAction<boolean>>
+  setIsTodosLoading: Dispatch<SetStateAction<boolean>>,
+  setFetchTodosErrorFlag: Dispatch<SetStateAction<boolean>>
 ): Promise<void> {
   const result = await fetchTodos(accessToken, setAccessToken);
 
   if (!result.success) {
+    setIsTodosLoading(false);
     setErrorMessage(result.message);
+    setFetchTodosErrorFlag(true);
     return;
   }
 
@@ -130,15 +146,18 @@ export async function handleFetchTodos(
   setIsTodosLoading(false);
 }
 
-async function handlePostNewTodo(
+export async function handlePostNewTodo(
   tempTodoId: string,
   todoText: string,
   isCompleted: boolean,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   accessToken: string,
-  setAccessToken: Dispatch<SetStateAction<string>>
+  setAccessToken: Dispatch<SetStateAction<string>>,
+  isAiSuggestion: boolean
 ): Promise<void> {
+  setErrorMessage("");
+
   const result = await postNewTodo(
     todoText,
     isCompleted,
@@ -147,38 +166,45 @@ async function handlePostNewTodo(
   );
 
   if (!result.success) {
+    setTodos((todos) => todos.filter((todo) => todo._id !== tempTodoId));
     setErrorMessage(result.message);
     return;
   }
 
   const [todoFromDb] = result.data.newTodo;
 
-  setTodos((currentTodosArray) => {
-    const filteredTodos = currentTodosArray.filter(
-      (todo) => todo._id !== tempTodoId
+  if (!isAiSuggestion) {
+    setTodos((currentTodosArray) =>
+      currentTodosArray.map((todo) =>
+        todo._id === tempTodoId ? { ...todoFromDb, isNewTodo: false } : todo
+      )
     );
-
-    const newTodosArray = [
-      ...filteredTodos,
+  } else {
+    setTodos((currentTodosArray) => [
+      ...currentTodosArray,
       { ...todoFromDb, isNewTodo: false },
-    ];
-
-    return newTodosArray;
-  });
+    ]);
+  }
 }
 
 export async function handleUpdateToggleCheckMark(
-  todoId: string,
-  isCompletedCurrentStuatus: boolean,
+  todo: Todo,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   accessToken: string,
   setAccessToken: Dispatch<SetStateAction<string>>
-): Promise<void> {
-  const isCompletedStaus = !isCompletedCurrentStuatus;
+) {
+  setErrorMessage("");
+
+  if (todo.todoText.trim() === "") {
+    setErrorMessage("Todo cannot be blank.");
+    return;
+  }
+
+  const isCompletedStaus = !todo.isCompleted;
 
   const result = await updateTodoToggleCheckmark(
-    todoId,
+    todo._id,
     isCompletedStaus,
     accessToken,
     setAccessToken
@@ -197,21 +223,23 @@ export async function handleUpdateToggleCheckMark(
 }
 
 async function handleUpdateTodoText(
-  todoId: string,
-  updatedTodoText: string,
+  todoItem: Todo,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   accessToken: string,
-  setAccessToken: Dispatch<SetStateAction<string>>
+  setAccessToken: Dispatch<SetStateAction<string>>,
+  originalTodoText: string
 ): Promise<void> {
   const result = await updateTodoText(
-    todoId,
-    updatedTodoText,
+    todoItem._id,
+    todoItem.todoText,
     accessToken,
     setAccessToken
   );
 
   if (!result.success) {
+    todoItem.todoText = originalTodoText;
+
     setErrorMessage(result.message);
     return;
   }
@@ -231,8 +259,15 @@ export async function handleDeleteTodo(
   accessToken: string,
   setAccessToken: Dispatch<SetStateAction<string>>
 ): Promise<void> {
+  setErrorMessage("");
+
   if (todoToBeDeleted.isNewTodo && todoToBeDeleted.todoText.trim() === "") {
-    handleDeleteBlankTodo(todoToBeDeleted._id, todosArray, setTodos);
+    handleDeleteBlankTodo(
+      todoToBeDeleted._id,
+      todosArray,
+      setTodos,
+      setErrorMessage
+    );
     return;
   }
 

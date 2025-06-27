@@ -24,7 +24,8 @@ import { useTodos } from "../../contexts/todo.context";
 import { useAuth } from "../../contexts/auth.context";
 import colors from "tailwindcss/colors";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
-import cookieParser from "cookie-parser";
+import Entypo from "@expo/vector-icons/Entypo";
+import AiSuggestionsModal from "../../components/AiSuggestionsModal";
 
 export default function Home() {
   const { todos, setTodos } = useTodos();
@@ -33,12 +34,14 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const originalTodoText = useRef("");
   const { accessToken, setAccessToken, isLoading } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+  const [fetchTodosErrorFlag, setFetchTodosErrorFlag] = useState(false);
 
   function renderRightActions(todoToBeDeleted: Todo) {
     return (
-      <View className="flex-row bg-yellow-600 ">
+      <View className="justify-center ml-1">
         <Pressable
-          className="p-1 justify-center rounded"
+          className="justify-center items-center bg-red-600 w-12 h-12 rounded-full"
           onPress={() =>
             handleDeleteTodo(
               todoToBeDeleted,
@@ -63,7 +66,8 @@ export default function Home() {
         setErrorMessage,
         accessToken,
         setAccessToken,
-        setIsTodosLoading
+        setIsTodosLoading,
+        setFetchTodosErrorFlag
       );
     }
   }, [isLoading]);
@@ -84,21 +88,32 @@ export default function Home() {
       : todos;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row border border-gray-300 rounded px-3 py-2 mb-4 mx-4">
+    <SafeAreaView className="flex-1">
+      <View className="flex-row bg-white/20 border border-white rounded-2xl p-4 mb-4 mx-4">
         <EvilIcons name="search" size={24} color={colors.blue[600]} />
         <TextInput
-          className="flex-1"
+          className="flex-1 placeholder:text-white text-white"
           placeholder="Search"
-          placeholderTextColor={colors.gray[400]}
           value={searchQuery}
           onChangeText={setSearchQuery}
         ></TextInput>
       </View>
 
-      {todosToShow.length === 0 ? (
+      {errorMessage ? (
+        <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
+      ) : null}
+
+      {showModal && (
+        <AiSuggestionsModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+          fetchTodosErrorFlag={fetchTodosErrorFlag}
+        />
+      )}
+
+      {!isLoading && !errorMessage && todosToShow.length === 0 ? (
         <View className="flex-1 justify-center items-center">
-          <Text className="text-2xl font-bold text-center">
+          <Text className="text-2xl font-bold text-center text-white">
             You have no todo items. Click the + button to create one!
           </Text>
         </View>
@@ -116,28 +131,27 @@ export default function Home() {
                 <Pressable
                   onPress={() =>
                     handleUpdateToggleCheckMark(
-                      item._id,
-                      item.isCompleted,
+                      item,
                       setTodos,
                       setErrorMessage,
                       accessToken,
                       setAccessToken
                     )
                   }
-                  className={`w-8 h-8 rounded-full mr-3 border items-center justify-center
+                  className={`w-10 h-10 rounded-full mr-3 items-center justify-center
                   ${
                     item.isCompleted
-                      ? "bg-blue-600 border-blue-600"
-                      : "border-gray-400"
+                      ? "bg-green-600 border-green-600"
+                      : " border border-white"
                   }
                 `}
                 >
                   {item.isCompleted && (
-                    <AntDesign name="check" size={16} color="white" />
+                    <AntDesign name="check" size={20} color="white" />
                   )}
                 </Pressable>
                 <TextInput
-                  className="flex-1 bg-blue-600 rounded px-3 py-2"
+                  className="flex-1 rounded-2xl p-4 text-white bg-white/20 border border-white"
                   placeholder=""
                   editable={true}
                   multiline={true}
@@ -156,7 +170,8 @@ export default function Home() {
                       setErrorMessage,
                       accessToken,
                       setAccessToken,
-                      todos
+                      todos,
+                      false
                     );
                   }}
                 />
@@ -169,15 +184,20 @@ export default function Home() {
       <View className="items-end justify-end mr-6 mt-6 ">
         <Pressable
           className="w-14 h-14 bg-blue-600 rounded-full items-center justify-center"
-          onPress={() => handleAddBlankTodo(todos, setTodos)}
+          onPress={() => handleAddBlankTodo(todos, setTodos, setErrorMessage)}
         >
           <AntDesign name="plus" size={24} color="white" />
         </Pressable>
       </View>
 
-      {errorMessage ? (
-        <Text className="text-red-500 text-center mb-4"> {errorMessage}</Text>
-      ) : null}
+      <View className="items-end justify-end mr-6 mt-6 ">
+        <Pressable
+          className="w-14 h-14 bg-purple-600 rounded-full items-center justify-center"
+          onPress={() => setShowModal(true)}
+        >
+          <Entypo name="help" size={24} color="white" />
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

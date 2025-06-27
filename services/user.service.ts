@@ -73,7 +73,7 @@ export async function updateUserName(
     }
   } catch (error) {
     console.error("Error in updateUserName function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return { success: false, message: "Error. Please try again." };
   }
 }
 
@@ -109,7 +109,7 @@ export async function updateUserEmail(
     }
   } catch (error) {
     console.error("Error in updateUserEmail function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return { success: false, message: "Error. Please try again." };
   }
 }
 
@@ -145,7 +145,10 @@ export async function verifyUserPassword(
     }
   } catch (error) {
     console.error("Error in verifyPassword function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return {
+      success: false,
+      message: "Error: Could not verify password. Please try again.",
+    };
   }
 }
 
@@ -181,6 +184,6 @@ export async function updateUserPassword(
     }
   } catch (error) {
     console.error("Error in updateUserPassword function:", error);
-    return { success: false, message: "Unexpected error occurred" };
+    return { success: false, message: "Error. Please try again." };
   }
 }

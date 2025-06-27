@@ -23,9 +23,7 @@ function handleRenderTabItems(
       <Pressable key={tab.tabname} onPress={() => selectTabSetter(tab.tabname)}>
         <Text
           className={`mb-2   ${
-            selectedTab === tab.tabname
-              ? "text-blue-600 font-bold"
-              : "text-black"
+            selectedTab === tab.tabname ? "text-white font-bold" : "text-black"
           }`}
         >
           {tab.label}

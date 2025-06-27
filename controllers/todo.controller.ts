@@ -51,6 +51,12 @@ export async function createTodo(
 
     const userId = req.userId;
 
+    if (!userId) {
+      const error = new CustomError("UserId field invalid");
+      error.statusCode = 400;
+      throw error;
+    }
+
     if (todoText === "") {
       const error = new CustomError("Todo cannnot be blank");
       error.statusCode = 400;
